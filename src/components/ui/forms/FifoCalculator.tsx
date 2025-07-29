@@ -21,9 +21,36 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
+type Swing = {
+  name: string;
+  daysOn: number;
+  daysOff: number;
+};
+
+const swings: Swing[] = [
+  {
+    name: "8/6",
+    daysOn: 8,
+    daysOff: 6,
+  },
+  {
+    name: "2/1",
+    daysOn: 14,
+    daysOff: 7,
+  },
+  {
+    name: "2/2",
+    daysOn: 14,
+    daysOff: 14,
+  },
+];
+
 const formSchema = z.object({
-  username: z.string().min(2, {
-    message: "Username must be at least 2 characters.",
+  hourlypay: z.number().positive({
+    message: "Hourly pay must be a positive number.",
+  }),
+  swings: z.string().min(1, {
+    message: "Please select a swing.",
   }),
 });
 
@@ -33,17 +60,20 @@ const FifoCalculator = React.forwardRef<
 >(({ className }, ref) => {
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
     defaultValues: {
-      username: "",
+      hourlypay: "",
+      swings: "8/6", // Default value for the dropdown as a string
     },
   });
 
   // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
+    const selectedSwing = swings.find((s) => s.name === values.swings);
+    if (selectedSwing) {
+      const hoursWorked = selectedSwing.daysOn * 12; // assuming 12 hour shifts
+      const totalPay = values.hourlypay * hoursWorked;
+      console.log(`Total pay for swing ${selectedSwing.name}: $${totalPay}`);
+    }
   }
   return (
     <Form {...form}>
@@ -54,20 +84,47 @@ const FifoCalculator = React.forwardRef<
       >
         <FormField
           control={form.control}
-          name="username"
+          name="hourlypay"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Username</FormLabel>
+              <FormLabel>Hourly Pay</FormLabel>
               <FormControl>
-                <Input placeholder="shadcn" {...field} />
+                <Input placeholder="20" type="number" {...field} />
               </FormControl>
-              <FormDescription>
-                This is your public display name.
-              </FormDescription>
+              <FormDescription>This is your hourly pay rate.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
+
+        {/* Example: Dropdown generated from an object */}
+        <FormField
+          control={form.control}
+          name="swings"
+          render={({ field }) => {
+            // Object to loop through
+
+            return (
+              <FormItem>
+                <FormLabel>Swings</FormLabel>
+                <FormControl>
+                  <select
+                    {...field}
+                    className="border rounded px-2 py-1 w-full"
+                  >
+                    {swings.map((swing) => (
+                      <option key={swing.name} value={swing.name}>
+                        {swing.name}
+                      </option>
+                    ))}
+                  </select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
+        />
+
         <Button type="submit">Submit</Button>
       </form>
     </Form>
