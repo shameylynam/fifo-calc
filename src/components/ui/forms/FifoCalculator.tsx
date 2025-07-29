@@ -45,9 +45,19 @@ const swings: Swing[] = [
   },
 ];
 
-const formSchema = z.object({
+const hourlySchema = z.object({
   hourlypay: z.coerce.number().positive({
     message: "Hourly pay must be a positive number.",
+  }),
+  swings: z.string().min(1, {
+    message: "Please select a swing.",
+  }),
+  backpacker: z.boolean().optional(),
+});
+
+const salarySchema = z.object({
+  salary: z.coerce.number().positive({
+    message: "Salary must be a positive number.",
   }),
   swings: z.string().min(1, {
     message: "Please select a swing.",
@@ -89,13 +99,13 @@ const FifoCalculator = React.forwardRef<
   React.ComponentProps<"div">
 >(({ className }, ref) => {
   // 1. Define your form.
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      hourlypay: 0,
-      swings: "8/6",
-      backpacker: false,
-    },
+  const [payType, setPayType] = React.useState<"hourly" | "salary">("hourly");
+  const form = useForm<any>({
+    resolver: zodResolver(payType === "hourly" ? hourlySchema : salarySchema),
+    defaultValues:
+      payType === "hourly"
+        ? { hourlypay: 0, swings: "8/6", backpacker: false }
+        : { salary: 0, swings: "8/6", backpacker: false },
   });
 
   // 2. Define a submit handler.
@@ -111,26 +121,27 @@ const FifoCalculator = React.forwardRef<
     cyclesPerYear: string;
     cyclesPerMonth: string;
     workingDaysPerMonth: string;
+    estimatedHourly?: string;
   }>(null);
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  function onSubmit(values: any) {
     const selectedSwing = swings.find((s) => s.name === values.swings);
-    if (selectedSwing) {
-      const hoursPerDay = 12; // assuming 12 hour shifts
+    if (!selectedSwing) return;
+    const swingCycleLength = selectedSwing.daysOn + selectedSwing.daysOff;
+    const cyclesPerMonth = 30.44 / swingCycleLength;
+    const cyclesPerYear = 365.25 / swingCycleLength;
+    const workingDaysPerMonth = cyclesPerMonth * selectedSwing.daysOn;
+
+    const currency = new Intl.NumberFormat("en-AU", {
+      style: "currency",
+      currency: "AUD",
+    });
+    const number = new Intl.NumberFormat("en-AU", { maximumFractionDigits: 2 });
+
+    if (payType === "hourly") {
+      const hoursPerDay = 12;
       const dailyPay = values.hourlypay * hoursPerDay;
-
-      // Calculate swing cycle pay (one complete cycle)
       const swingCyclePay = selectedSwing.daysOn * dailyPay;
-
-      // Calculate monthly pay
-      const swingCycleLength = selectedSwing.daysOn + selectedSwing.daysOff;
-      const averageDaysInMonth = 30.44; // Average days per month
-      const cyclesPerMonth = averageDaysInMonth / swingCycleLength;
-      const workingDaysPerMonth = cyclesPerMonth * selectedSwing.daysOn;
-      const monthlyPay = workingDaysPerMonth * dailyPay;
-
-      // Calculate annual pay and tax based on actual cycles per year
-      const cyclesPerYear = 365.25 / swingCycleLength;
       const annualPay = swingCyclePay * cyclesPerYear;
       const annualTax = values.backpacker
         ? calculateBackpackerTax(annualPay)
@@ -138,26 +149,54 @@ const FifoCalculator = React.forwardRef<
       const netAnnualPay = annualPay - annualTax;
       const netMonthlyPay = netAnnualPay / 12;
       const grossMonthlyPay = annualPay / 12;
-
-      // Calculate net and gross pay per swing
-      // For per swing, apply tax to swing gross, not annualized
       const swingTax = values.backpacker
         ? calculateBackpackerTax(swingCyclePay)
         : calculateAustralianTax(swingCyclePay);
       const netPayPerSwingCycle = swingCyclePay - swingTax;
-
       setResults({
         swing: selectedSwing.name,
-        grossSwing: `$${swingCyclePay.toFixed(2)}`,
-        netSwing: `$${netPayPerSwingCycle.toFixed(2)}`,
-        grossMonth: `$${grossMonthlyPay.toFixed(2)}`,
-        netMonth: `$${netMonthlyPay.toFixed(2)}`,
-        grossYear: `$${annualPay.toFixed(2)}`,
-        netYear: `$${netAnnualPay.toFixed(2)}`,
-        annualTax: `$${annualTax.toFixed(2)}`,
-        cyclesPerYear: cyclesPerYear.toFixed(2),
-        cyclesPerMonth: cyclesPerMonth.toFixed(2),
-        workingDaysPerMonth: workingDaysPerMonth.toFixed(1),
+        grossSwing: currency.format(swingCyclePay),
+        netSwing: currency.format(netPayPerSwingCycle),
+        grossMonth: currency.format(grossMonthlyPay),
+        netMonth: currency.format(netMonthlyPay),
+        grossYear: currency.format(annualPay),
+        netYear: currency.format(netAnnualPay),
+        annualTax: currency.format(annualTax),
+        cyclesPerYear: number.format(cyclesPerYear),
+        cyclesPerMonth: number.format(cyclesPerMonth),
+        workingDaysPerMonth: number.format(workingDaysPerMonth),
+      });
+    } else {
+      // Salary calculation
+      const annualPay = values.salary;
+      const annualTax = values.backpacker
+        ? calculateBackpackerTax(annualPay)
+        : calculateAustralianTax(annualPay);
+      const netAnnualPay = annualPay - annualTax;
+      const grossMonthlyPay = annualPay / 12;
+      const netMonthlyPay = netAnnualPay / 12;
+      // Per swing
+      const swingCyclePay = annualPay / cyclesPerYear;
+      const swingTax = values.backpacker
+        ? calculateBackpackerTax(swingCyclePay)
+        : calculateAustralianTax(swingCyclePay);
+      const netPayPerSwingCycle = swingCyclePay - swingTax;
+      // Estimated hourly rate
+      const hoursPerYear = selectedSwing.daysOn * 12 * cyclesPerYear;
+      const estimatedHourly = annualPay / hoursPerYear;
+      setResults({
+        swing: selectedSwing.name,
+        grossSwing: currency.format(swingCyclePay),
+        netSwing: currency.format(netPayPerSwingCycle),
+        grossMonth: currency.format(grossMonthlyPay),
+        netMonth: currency.format(netMonthlyPay),
+        grossYear: currency.format(annualPay),
+        netYear: currency.format(netAnnualPay),
+        annualTax: currency.format(annualTax),
+        cyclesPerYear: number.format(cyclesPerYear),
+        cyclesPerMonth: number.format(cyclesPerMonth),
+        workingDaysPerMonth: number.format(workingDaysPerMonth),
+        estimatedHourly: currency.format(estimatedHourly),
       });
     }
   }
@@ -168,20 +207,58 @@ const FifoCalculator = React.forwardRef<
         className={cn("space-y-8", className)}
         ref={ref}
       >
-        <FormField
-          control={form.control}
-          name="hourlypay"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Hourly Pay</FormLabel>
-              <FormControl>
-                <Input placeholder="20" type="number" {...field} />
-              </FormControl>
-              <FormDescription>This is your hourly pay rate.</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="flex gap-4 mb-4">
+          <label className="flex items-center gap-2">
+            <input
+              type="radio"
+              checked={payType === "hourly"}
+              onChange={() => setPayType("hourly")}
+            />
+            Hourly
+          </label>
+          <label className="flex items-center gap-2">
+            <input
+              type="radio"
+              checked={payType === "salary"}
+              onChange={() => setPayType("salary")}
+            />
+            Salary
+          </label>
+        </div>
+
+        {payType === "hourly" ? (
+          <FormField
+            control={form.control}
+            name="hourlypay"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Hourly Pay</FormLabel>
+                <FormControl>
+                  <Input placeholder="20" type="number" {...field} />
+                </FormControl>
+                <FormDescription>This is your hourly pay rate.</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        ) : (
+          <FormField
+            control={form.control}
+            name="salary"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Yearly Salary</FormLabel>
+                <FormControl>
+                  <Input placeholder="100000" type="number" {...field} />
+                </FormControl>
+                <FormDescription>
+                  This is your gross annual salary.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
 
         <FormField
           control={form.control}
@@ -295,6 +372,14 @@ const FifoCalculator = React.forwardRef<
                     {results.workingDaysPerMonth}
                   </td>
                 </tr>
+                {results.estimatedHourly && (
+                  <tr>
+                    <td className="border px-2 py-1">Estimated hourly rate</td>
+                    <td className="border px-2 py-1">
+                      {results.estimatedHourly}
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
