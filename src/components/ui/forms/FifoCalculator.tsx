@@ -46,7 +46,7 @@ const swings: Swing[] = [
 ];
 
 const formSchema = z.object({
-  hourlypay: z.number().positive({
+  hourlypay: z.coerce.number().positive({
     message: "Hourly pay must be a positive number.",
   }),
   swings: z.string().min(1, {
@@ -55,13 +55,17 @@ const formSchema = z.object({
 });
 
 const FifoCalculator = React.forwardRef<
-  HTMLInputElement,
+  HTMLFormElement,
   React.ComponentProps<"div">
 >(({ className }, ref) => {
   // 1. Define your form.
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<{
+    hourlypay: unknown;
+    swings: string;
+  }>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
-      hourlypay: "",
+      hourlypay: 0,
       swings: "8/6", // Default value for the dropdown as a string
     },
   });
@@ -70,9 +74,26 @@ const FifoCalculator = React.forwardRef<
   function onSubmit(values: z.infer<typeof formSchema>) {
     const selectedSwing = swings.find((s) => s.name === values.swings);
     if (selectedSwing) {
-      const hoursWorked = selectedSwing.daysOn * 12; // assuming 12 hour shifts
-      const totalPay = values.hourlypay * hoursWorked;
-      console.log(`Total pay for swing ${selectedSwing.name}: $${totalPay}`);
+      const hoursPerDay = 12; // assuming 12 hour shifts
+      const dailyPay = values.hourlypay * hoursPerDay;
+
+      // Calculate swing cycle pay (one complete cycle)
+      const swingCyclePay = selectedSwing.daysOn * dailyPay;
+
+      // Calculate monthly pay
+      const swingCycleLength = selectedSwing.daysOn + selectedSwing.daysOff;
+      const averageDaysInMonth = 30.44; // Average days per month
+      const cyclesPerMonth = averageDaysInMonth / swingCycleLength;
+      const workingDaysPerMonth = cyclesPerMonth * selectedSwing.daysOn;
+      const monthlyPay = workingDaysPerMonth * dailyPay;
+
+      console.log(`Swing: ${selectedSwing.name}`);
+      console.log(`Daily pay: $${dailyPay.toFixed(2)}`);
+      console.log(`Pay per swing cycle: $${swingCyclePay.toFixed(2)}`);
+      console.log(
+        `Working days per month (avg): ${workingDaysPerMonth.toFixed(1)}`
+      );
+      console.log(`Monthly pay (avg): $${monthlyPay.toFixed(2)}`);
     }
   }
   return (
