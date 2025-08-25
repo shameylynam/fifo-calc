@@ -109,110 +109,179 @@ const FifoCalculator = React.forwardRef<
   React.ComponentProps<"div">
 >(({ className }, ref) => {
   // 1. Define your form.
-  const [payType, setPayType] = React.useState<"hourly" | "salary">("hourly");
+  const [payTypeJob1, setPayTypeJob1] = React.useState<"hourly" | "salary">(
+    "hourly"
+  );
+  const [payTypeJob2, setPayTypeJob2] = React.useState<"hourly" | "salary">(
+    "hourly"
+  );
   const [showCompare, setShowCompare] = React.useState(false);
+  const defaultValues = {
+    hourlypay: 0,
+    salary: 0,
+    swings: "8/6",
+    backpacker: false,
+    hourlypayTwo: 0,
+    salaryTwo: 0,
+    swingsTwo: "8/6",
+    backpackerTwo: false,
+  };
+  const mergedSchema = z.object({
+    hourlypay: z.coerce.number().min(0),
+    salary: z.coerce.number().min(0),
+    swings: z.string().min(1, {
+      message: "Please select a swing.",
+    }),
+    backpacker: z.boolean().optional(),
+    hourlypayTwo: z.coerce.number().min(0),
+    salaryTwo: z.coerce.number().min(0),
+    swingsTwo: z.string().min(1, {
+      message: "Please select a swing.",
+    }),
+    backpackerTwo: z.boolean().optional(),
+  });
   const form = useForm<any>({
-    resolver: zodResolver(payType === "hourly" ? hourlySchema : salarySchema),
-    defaultValues:
-      payType === "hourly"
-        ? { hourlypay: 0, swings: "8/6", backpacker: false }
-        : { salary: 0, swings: "8/6", backpacker: false },
+    resolver: zodResolver(mergedSchema),
+    defaultValues,
   });
 
-  // 2. Define a submit handler.
+  // 2. Define reusable calculation functions and submit handler.
   const [results, setResults] = React.useState<null | {
-    swing: string;
-    grossSwing: string;
-    netSwing: string;
-    grossMonth: string;
-    netMonth: string;
-    grossYear: string;
-    netYear: string;
-    annualTax: string;
-    cyclesPerYear: string;
-    cyclesPerMonth: string;
-    workingDaysPerMonth: string;
-    estimatedHourly?: string;
+    job1: any;
+    job2: any;
   }>(null);
 
-  function onSubmit(values: any) {
+  function calculateHourlyResults(
+    hourlypay: number,
+    swingName: string,
+    backpacker: boolean
+  ) {
     const selectedFifoSwing = fifoSwingOptions.find(
-      (s: FifoSwing) => s.name === values.swings
+      (s: FifoSwing) => s.name === swingName
     );
-    if (!selectedFifoSwing) return;
+    if (!selectedFifoSwing) return null;
     const swingCycleLength =
       selectedFifoSwing.daysOn + selectedFifoSwing.daysOff;
     const cyclesPerMonth = 30.44 / swingCycleLength;
     const cyclesPerYear = 365.25 / swingCycleLength;
     const workingDaysPerMonth = cyclesPerMonth * selectedFifoSwing.daysOn;
-
     const currency = new Intl.NumberFormat("en-AU", {
       style: "currency",
       currency: "AUD",
     });
     const number = new Intl.NumberFormat("en-AU", { maximumFractionDigits: 2 });
+    const hoursPerDay = 12;
+    const dailyPay = hourlypay * hoursPerDay;
+    const swingCyclePay = selectedFifoSwing.daysOn * dailyPay;
+    const annualPay = swingCyclePay * cyclesPerYear;
+    const annualTax = backpacker
+      ? calculateBackpackerTax(annualPay)
+      : calculateAustralianTax(annualPay);
+    const netAnnualPay = annualPay - annualTax;
+    const netMonthlyPay = netAnnualPay / 12;
+    const grossMonthlyPay = annualPay / 12;
+    const swingTax = backpacker
+      ? calculateBackpackerTax(swingCyclePay)
+      : calculateAustralianTax(swingCyclePay);
+    const netPayPerSwingCycle = swingCyclePay - swingTax;
+    return {
+      swing: selectedFifoSwing.name,
+      grossSwing: currency.format(swingCyclePay),
+      netSwing: currency.format(netPayPerSwingCycle),
+      grossMonth: currency.format(grossMonthlyPay),
+      netMonth: currency.format(netMonthlyPay),
+      grossYear: currency.format(annualPay),
+      netYear: currency.format(netAnnualPay),
+      annualTax: currency.format(annualTax),
+      cyclesPerYear: number.format(cyclesPerYear),
+      cyclesPerMonth: number.format(cyclesPerMonth),
+      workingDaysPerMonth: number.format(workingDaysPerMonth),
+    };
+  }
 
-    if (payType === "hourly") {
-      const hoursPerDay = 12;
-      const dailyPay = values.hourlypay * hoursPerDay;
-      const swingCyclePay = selectedFifoSwing.daysOn * dailyPay;
-      const annualPay = swingCyclePay * cyclesPerYear;
-      const annualTax = values.backpacker
-        ? calculateBackpackerTax(annualPay)
-        : calculateAustralianTax(annualPay);
-      const netAnnualPay = annualPay - annualTax;
-      const netMonthlyPay = netAnnualPay / 12;
-      const grossMonthlyPay = annualPay / 12;
-      const swingTax = values.backpacker
-        ? calculateBackpackerTax(swingCyclePay)
-        : calculateAustralianTax(swingCyclePay);
-      const netPayPerSwingCycle = swingCyclePay - swingTax;
-      setResults({
-        swing: selectedFifoSwing.name,
-        grossSwing: currency.format(swingCyclePay),
-        netSwing: currency.format(netPayPerSwingCycle),
-        grossMonth: currency.format(grossMonthlyPay),
-        netMonth: currency.format(netMonthlyPay),
-        grossYear: currency.format(annualPay),
-        netYear: currency.format(netAnnualPay),
-        annualTax: currency.format(annualTax),
-        cyclesPerYear: number.format(cyclesPerYear),
-        cyclesPerMonth: number.format(cyclesPerMonth),
-        workingDaysPerMonth: number.format(workingDaysPerMonth),
-      });
+  function calculateSalaryResults(
+    salary: number,
+    swingName: string,
+    backpacker: boolean
+  ) {
+    const selectedFifoSwing = fifoSwingOptions.find(
+      (s: FifoSwing) => s.name === swingName
+    );
+    if (!selectedFifoSwing) return null;
+    const swingCycleLength =
+      selectedFifoSwing.daysOn + selectedFifoSwing.daysOff;
+    const cyclesPerMonth = 30.44 / swingCycleLength;
+    const cyclesPerYear = 365.25 / swingCycleLength;
+    const workingDaysPerMonth = cyclesPerMonth * selectedFifoSwing.daysOn;
+    const currency = new Intl.NumberFormat("en-AU", {
+      style: "currency",
+      currency: "AUD",
+    });
+    const number = new Intl.NumberFormat("en-AU", { maximumFractionDigits: 2 });
+    const annualPay = salary;
+    const annualTax = backpacker
+      ? calculateBackpackerTax(annualPay)
+      : calculateAustralianTax(annualPay);
+    const netAnnualPay = annualPay - annualTax;
+    const grossMonthlyPay = annualPay / 12;
+    const netMonthlyPay = netAnnualPay / 12;
+    const swingCyclePay = annualPay / cyclesPerYear;
+    const swingTax = backpacker
+      ? calculateBackpackerTax(swingCyclePay)
+      : calculateAustralianTax(swingCyclePay);
+    const netPayPerSwingCycle = swingCyclePay - swingTax;
+    const hoursPerYear = selectedFifoSwing.daysOn * 12 * cyclesPerYear;
+    const estimatedHourly = annualPay / hoursPerYear;
+    return {
+      swing: selectedFifoSwing.name,
+      grossSwing: currency.format(swingCyclePay),
+      netSwing: currency.format(netPayPerSwingCycle),
+      grossMonth: currency.format(grossMonthlyPay),
+      netMonth: currency.format(netMonthlyPay),
+      grossYear: currency.format(annualPay),
+      netYear: currency.format(netAnnualPay),
+      annualTax: currency.format(annualTax),
+      cyclesPerYear: number.format(cyclesPerYear),
+      cyclesPerMonth: number.format(cyclesPerMonth),
+      workingDaysPerMonth: number.format(workingDaysPerMonth),
+      estimatedHourly: currency.format(estimatedHourly),
+    };
+  }
+
+  function onSubmit(values: any) {
+    console.log(values);
+    let job1Results = null;
+    let job2Results = null;
+    if (payTypeJob1 === "hourly") {
+      job1Results = calculateHourlyResults(
+        values.hourlypay,
+        values.swings,
+        values.backpacker
+      );
     } else {
-      // Salary calculation
-      const annualPay = values.salary;
-      const annualTax = values.backpacker
-        ? calculateBackpackerTax(annualPay)
-        : calculateAustralianTax(annualPay);
-      const netAnnualPay = annualPay - annualTax;
-      const grossMonthlyPay = annualPay / 12;
-      const netMonthlyPay = netAnnualPay / 12;
-      // Per swing
-      const swingCyclePay = annualPay / cyclesPerYear;
-      const swingTax = values.backpacker
-        ? calculateBackpackerTax(swingCyclePay)
-        : calculateAustralianTax(swingCyclePay);
-      const netPayPerSwingCycle = swingCyclePay - swingTax;
-      // Estimated hourly rate
-      const hoursPerYear = selectedFifoSwing.daysOn * 12 * cyclesPerYear;
-      const estimatedHourly = annualPay / hoursPerYear;
-      setResults({
-        swing: selectedFifoSwing.name,
-        grossSwing: currency.format(swingCyclePay),
-        netSwing: currency.format(netPayPerSwingCycle),
-        grossMonth: currency.format(grossMonthlyPay),
-        netMonth: currency.format(netMonthlyPay),
-        grossYear: currency.format(annualPay),
-        netYear: currency.format(netAnnualPay),
-        annualTax: currency.format(annualTax),
-        cyclesPerYear: number.format(cyclesPerYear),
-        cyclesPerMonth: number.format(cyclesPerMonth),
-        workingDaysPerMonth: number.format(workingDaysPerMonth),
-        estimatedHourly: currency.format(estimatedHourly),
-      });
+      job1Results = calculateSalaryResults(
+        values.salary,
+        values.swings,
+        values.backpacker
+      );
     }
+
+    if (showCompare) {
+      if (payTypeJob2 === "hourly") {
+        job2Results = calculateHourlyResults(
+          values.hourlypayTwo,
+          values.swingsTwo,
+          values.backpackerTwo
+        );
+      } else {
+        job2Results = calculateSalaryResults(
+          values.salaryTwo,
+          values.swingsTwo,
+          values.backpackerTwo
+        );
+      }
+    }
+    setResults({ job1: job1Results, job2: job2Results });
   }
   // 1st job variables linked to form
   const hourlyPayJobOne = form.watch("hourlypay");
@@ -232,28 +301,30 @@ const FifoCalculator = React.forwardRef<
         className={cn("space-y-8", className)}
         ref={ref}
       >
-        <div className="flex gap-4 mb-4">
-          <label className="flex items-center gap-2">
-            <input
-              type="radio"
-              checked={payType === "hourly"}
-              onChange={() => setPayType("hourly")}
-            />
-            Hourly
-          </label>
-          <label className="flex items-center gap-2">
-            <input
-              type="radio"
-              checked={payType === "salary"}
-              onChange={() => setPayType("salary")}
-            />
-            Salary
-          </label>
-        </div>
-
         <div className="flex flex-col md:flex-row gap-8">
           <div className="flex-1 flex flex-col gap-6">
-            {payType === "hourly" ? (
+            <div className="flex gap-4 mb-4">
+              <div className="flex flex-col">
+                <span className="font-semibold mb-1">Job 1 Pay Type</span>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    checked={payTypeJob1 === "hourly"}
+                    onChange={() => setPayTypeJob1("hourly")}
+                  />
+                  Hourly
+                </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    checked={payTypeJob1 === "salary"}
+                    onChange={() => setPayTypeJob1("salary")}
+                  />
+                  Salary
+                </label>
+              </div>
+            </div>
+            {payTypeJob1 === "hourly" ? (
               <FormField
                 control={form.control}
                 name="hourlypay"
@@ -261,7 +332,12 @@ const FifoCalculator = React.forwardRef<
                   <FormItem>
                     <FormLabel>Hourly Pay</FormLabel>
                     <FormControl>
-                      <Input placeholder="20" type="number" {...field} />
+                      <Input
+                        placeholder="20"
+                        type="number"
+                        {...field}
+                        value={field.value ?? ""}
+                      />
                     </FormControl>
                     <FormDescription>
                       This is your hourly pay rate.
@@ -278,7 +354,12 @@ const FifoCalculator = React.forwardRef<
                   <FormItem>
                     <FormLabel>Yearly Salary</FormLabel>
                     <FormControl>
-                      <Input placeholder="100000" type="number" {...field} />
+                      <Input
+                        placeholder="100000"
+                        type="number"
+                        {...field}
+                        value={field.value ?? ""}
+                      />
                     </FormControl>
                     <FormDescription>
                       This is your gross annual salary.
@@ -318,6 +399,7 @@ const FifoCalculator = React.forwardRef<
                   <FormControl>
                     <select
                       {...field}
+                      value={field.value ?? ""}
                       className="border rounded px-2 py-1 w-full"
                     >
                       {fifoSwingOptions.map((swing: FifoSwing) => (
@@ -334,7 +416,28 @@ const FifoCalculator = React.forwardRef<
           </div>
           {showCompare && (
             <div className="flex-1 flex flex-col gap-6">
-              {payType === "hourly" ? (
+              <div className="flex gap-4 mb-4">
+                <div className="flex flex-col">
+                  <span className="font-semibold mb-1">Job 2 Pay Type</span>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      checked={payTypeJob2 === "hourly"}
+                      onChange={() => setPayTypeJob2("hourly")}
+                    />
+                    Hourly
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      checked={payTypeJob2 === "salary"}
+                      onChange={() => setPayTypeJob2("salary")}
+                    />
+                    Salary
+                  </label>
+                </div>
+              </div>
+              {payTypeJob2 === "hourly" ? (
                 <FormField
                   control={form.control}
                   name="hourlypayTwo"
@@ -342,7 +445,12 @@ const FifoCalculator = React.forwardRef<
                     <FormItem>
                       <FormLabel>Hourly Pay (Job 2)</FormLabel>
                       <FormControl>
-                        <Input placeholder="20" type="number" {...field} />
+                        <Input
+                          placeholder="20"
+                          type="number"
+                          {...field}
+                          value={field.value ?? ""}
+                        />
                       </FormControl>
                       <FormDescription>
                         Second job hourly pay rate.
@@ -359,7 +467,12 @@ const FifoCalculator = React.forwardRef<
                     <FormItem>
                       <FormLabel>Yearly Salary (Job 2)</FormLabel>
                       <FormControl>
-                        <Input placeholder="100000" type="number" {...field} />
+                        <Input
+                          placeholder="100000"
+                          type="number"
+                          {...field}
+                          value={field.value ?? ""}
+                        />
                       </FormControl>
                       <FormDescription>
                         Second job gross annual salary.
@@ -399,6 +512,7 @@ const FifoCalculator = React.forwardRef<
                     <FormControl>
                       <select
                         {...field}
+                        value={field.value ?? ""}
                         className="border rounded px-2 py-1 w-full"
                       >
                         <option value="">Select swing</option>
@@ -429,68 +543,133 @@ const FifoCalculator = React.forwardRef<
         </div>
 
         {results && (
-          <div className="mt-8">
-            <Table>
-              <TableCaption>FIFO pay breakdown</TableCaption>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[220px]">Metric</TableHead>
-                  <TableHead>Value</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <TableRow>
-                  <TableCell>Swing</TableCell>
-                  <TableCell>{results.swing}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Gross pay per swing</TableCell>
-                  <TableCell>{results.grossSwing}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Net pay per swing</TableCell>
-                  <TableCell>{results.netSwing}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Gross pay per month (avg)</TableCell>
-                  <TableCell>{results.grossMonth}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Net pay per month (avg)</TableCell>
-                  <TableCell>{results.netMonth}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Gross pay per year</TableCell>
-                  <TableCell>{results.grossYear}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Net pay per year</TableCell>
-                  <TableCell>{results.netYear}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Estimated annual tax</TableCell>
-                  <TableCell>{results.annualTax}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Cycles per year</TableCell>
-                  <TableCell>{results.cyclesPerYear}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Cycles per month</TableCell>
-                  <TableCell>{results.cyclesPerMonth}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Working days per month (avg)</TableCell>
-                  <TableCell>{results.workingDaysPerMonth}</TableCell>
-                </TableRow>
-                {results.estimatedHourly && (
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+            {results.job1 && (
+              <Table>
+                <TableCaption>FIFO pay breakdown (Job 1)</TableCaption>
+                <TableHeader>
                   <TableRow>
-                    <TableCell>Estimated hourly rate</TableCell>
-                    <TableCell>{results.estimatedHourly}</TableCell>
+                    <TableHead className="w-[220px]">Metric</TableHead>
+                    <TableHead>Value</TableHead>
                   </TableRow>
-                )}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  <TableRow>
+                    <TableCell>Swing</TableCell>
+                    <TableCell>{results.job1.swing}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Gross pay per swing</TableCell>
+                    <TableCell>{results.job1.grossSwing}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Net pay per swing</TableCell>
+                    <TableCell>{results.job1.netSwing}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Gross pay per month (avg)</TableCell>
+                    <TableCell>{results.job1.grossMonth}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Net pay per month (avg)</TableCell>
+                    <TableCell>{results.job1.netMonth}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Gross pay per year</TableCell>
+                    <TableCell>{results.job1.grossYear}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Net pay per year</TableCell>
+                    <TableCell>{results.job1.netYear}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Estimated annual tax</TableCell>
+                    <TableCell>{results.job1.annualTax}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Cycles per year</TableCell>
+                    <TableCell>{results.job1.cyclesPerYear}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Cycles per month</TableCell>
+                    <TableCell>{results.job1.cyclesPerMonth}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Working days per month (avg)</TableCell>
+                    <TableCell>{results.job1.workingDaysPerMonth}</TableCell>
+                  </TableRow>
+                  {results.job1.estimatedHourly && (
+                    <TableRow>
+                      <TableCell>Estimated hourly rate</TableCell>
+                      <TableCell>{results.job1.estimatedHourly}</TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            )}
+            {results.job2 && (
+              <Table>
+                <TableCaption>FIFO pay breakdown (Job 2)</TableCaption>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[220px]">Metric</TableHead>
+                    <TableHead>Value</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow>
+                    <TableCell>Swing</TableCell>
+                    <TableCell>{results.job2.swing}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Gross pay per swing</TableCell>
+                    <TableCell>{results.job2.grossSwing}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Net pay per swing</TableCell>
+                    <TableCell>{results.job2.netSwing}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Gross pay per month (avg)</TableCell>
+                    <TableCell>{results.job2.grossMonth}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Net pay per month (avg)</TableCell>
+                    <TableCell>{results.job2.netMonth}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Gross pay per year</TableCell>
+                    <TableCell>{results.job2.grossYear}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Net pay per year</TableCell>
+                    <TableCell>{results.job2.netYear}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Estimated annual tax</TableCell>
+                    <TableCell>{results.job2.annualTax}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Cycles per year</TableCell>
+                    <TableCell>{results.job2.cyclesPerYear}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Cycles per month</TableCell>
+                    <TableCell>{results.job2.cyclesPerMonth}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Working days per month (avg)</TableCell>
+                    <TableCell>{results.job2.workingDaysPerMonth}</TableCell>
+                  </TableRow>
+                  {results.job2.estimatedHourly && (
+                    <TableRow>
+                      <TableCell>Estimated hourly rate</TableCell>
+                      <TableCell>{results.job2.estimatedHourly}</TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            )}
           </div>
         )}
       </form>
