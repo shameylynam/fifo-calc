@@ -18,6 +18,16 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -314,74 +324,67 @@ const FifoCalculator = React.forwardRef<
 
         {results && (
           <div className="mt-8">
-            <table className="min-w-full border text-sm">
-              <thead>
-                <tr className="bg-gray-100">
-                  <th className="border px-2 py-1">Metric</th>
-                  <th className="border px-2 py-1">Value</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td className="border px-2 py-1">Swing</td>
-                  <td className="border px-2 py-1">{results.swing}</td>
-                </tr>
-                <tr>
-                  <td className="border px-2 py-1">Gross pay per swing</td>
-                  <td className="border px-2 py-1">{results.grossSwing}</td>
-                </tr>
-                <tr>
-                  <td className="border px-2 py-1">Net pay per swing</td>
-                  <td className="border px-2 py-1">{results.netSwing}</td>
-                </tr>
-                <tr>
-                  <td className="border px-2 py-1">
-                    Gross pay per month (avg)
-                  </td>
-                  <td className="border px-2 py-1">{results.grossMonth}</td>
-                </tr>
-                <tr>
-                  <td className="border px-2 py-1">Net pay per month (avg)</td>
-                  <td className="border px-2 py-1">{results.netMonth}</td>
-                </tr>
-                <tr>
-                  <td className="border px-2 py-1">Gross pay per year</td>
-                  <td className="border px-2 py-1">{results.grossYear}</td>
-                </tr>
-                <tr>
-                  <td className="border px-2 py-1">Net pay per year</td>
-                  <td className="border px-2 py-1">{results.netYear}</td>
-                </tr>
-                <tr>
-                  <td className="border px-2 py-1">Estimated annual tax</td>
-                  <td className="border px-2 py-1">{results.annualTax}</td>
-                </tr>
-                <tr>
-                  <td className="border px-2 py-1">Cycles per year</td>
-                  <td className="border px-2 py-1">{results.cyclesPerYear}</td>
-                </tr>
-                <tr>
-                  <td className="border px-2 py-1">Cycles per month</td>
-                  <td className="border px-2 py-1">{results.cyclesPerMonth}</td>
-                </tr>
-                <tr>
-                  <td className="border px-2 py-1">
-                    Working days per month (avg)
-                  </td>
-                  <td className="border px-2 py-1">
-                    {results.workingDaysPerMonth}
-                  </td>
-                </tr>
+            <Table>
+              <TableCaption>FIFO pay breakdown</TableCaption>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[220px]">Metric</TableHead>
+                  <TableHead>Value</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow>
+                  <TableCell>Swing</TableCell>
+                  <TableCell>{results.swing}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>Gross pay per swing</TableCell>
+                  <TableCell>{results.grossSwing}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>Net pay per swing</TableCell>
+                  <TableCell>{results.netSwing}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>Gross pay per month (avg)</TableCell>
+                  <TableCell>{results.grossMonth}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>Net pay per month (avg)</TableCell>
+                  <TableCell>{results.netMonth}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>Gross pay per year</TableCell>
+                  <TableCell>{results.grossYear}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>Net pay per year</TableCell>
+                  <TableCell>{results.netYear}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>Estimated annual tax</TableCell>
+                  <TableCell>{results.annualTax}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>Cycles per year</TableCell>
+                  <TableCell>{results.cyclesPerYear}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>Cycles per month</TableCell>
+                  <TableCell>{results.cyclesPerMonth}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>Working days per month (avg)</TableCell>
+                  <TableCell>{results.workingDaysPerMonth}</TableCell>
+                </TableRow>
                 {results.estimatedHourly && (
-                  <tr>
-                    <td className="border px-2 py-1">Estimated hourly rate</td>
-                    <td className="border px-2 py-1">
-                      {results.estimatedHourly}
-                    </td>
-                  </tr>
+                  <TableRow>
+                    <TableCell>Estimated hourly rate</TableCell>
+                    <TableCell>{results.estimatedHourly}</TableCell>
+                  </TableRow>
                 )}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
         )}
       </form>
