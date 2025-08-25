@@ -110,6 +110,7 @@ const FifoCalculator = React.forwardRef<
 >(({ className }, ref) => {
   // 1. Define your form.
   const [payType, setPayType] = React.useState<"hourly" | "salary">("hourly");
+  const [showCompare, setShowCompare] = React.useState(false);
   const form = useForm<any>({
     resolver: zodResolver(payType === "hourly" ? hourlySchema : salarySchema),
     defaultValues:
@@ -236,91 +237,271 @@ const FifoCalculator = React.forwardRef<
           </label>
         </div>
 
-        {payType === "hourly" ? (
-          <FormField
-            control={form.control}
-            name="hourlypay"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Hourly Pay</FormLabel>
-                <FormControl>
-                  <Input placeholder="20" type="number" {...field} />
-                </FormControl>
-                <FormDescription>This is your hourly pay rate.</FormDescription>
-                <FormMessage />
-              </FormItem>
+        <div className="flex flex-col md:flex-row gap-8">
+          <div className="flex-1">
+            {payType === "hourly" ? (
+              <>
+                <FormField
+                  control={form.control}
+                  name="hourlypay"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Hourly Pay</FormLabel>
+                      <FormControl>
+                        <Input placeholder="20" type="number" {...field} />
+                      </FormControl>
+                      <FormDescription>This is your hourly pay rate.</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="backpacker"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Backpacker</FormLabel>
+                      <FormControl>
+                        <div className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={field.value ?? false}
+                            onChange={(e) => field.onChange(e.target.checked)}
+                            className="mr-2"
+                          />
+                          <span>Apply backpacker tax rates</span>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="swings"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Swings</FormLabel>
+                      <FormControl>
+                        <select
+                          {...field}
+                          className="border rounded px-2 py-1 w-full"
+                        >
+                          {swings.map((swing) => (
+                            <option key={swing.name} value={swing.name}>
+                              {swing.name}
+                            </option>
+                          ))}
+                        </select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </>
+            ) : (
+              <>
+                <FormField
+                  control={form.control}
+                  name="salary"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Yearly Salary</FormLabel>
+                      <FormControl>
+                        <Input placeholder="100000" type="number" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        This is your gross annual salary.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="backpacker"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Backpacker</FormLabel>
+                      <FormControl>
+                        <div className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={field.value ?? false}
+                            onChange={(e) => field.onChange(e.target.checked)}
+                            className="mr-2"
+                          />
+                          <span>Apply backpacker tax rates</span>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="swings"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Swings</FormLabel>
+                      <FormControl>
+                        <select
+                          {...field}
+                          className="border rounded px-2 py-1 w-full"
+                        >
+                          {swings.map((swing) => (
+                            <option key={swing.name} value={swing.name}>
+                              {swing.name}
+                            </option>
+                          ))}
+                        </select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </>
             )}
-          />
-        ) : (
-          <FormField
-            control={form.control}
-            name="salary"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Yearly Salary</FormLabel>
-                <FormControl>
-                  <Input placeholder="100000" type="number" {...field} />
-                </FormControl>
-                <FormDescription>
-                  This is your gross annual salary.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
-
-        <FormField
-          control={form.control}
-          name="backpacker"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Backpacker</FormLabel>
-              <FormControl>
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={field.value}
-                    onChange={(e) => field.onChange(e.target.checked)}
-                    className="mr-2"
+          </div>
+          {showCompare && (
+            <div className="flex-1">
+              {payType === "hourly" ? (
+                <>
+                  <FormField
+                    control={form.control}
+                    name="hourlypayTwo"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Hourly Pay (Job 2)</FormLabel>
+                        <FormControl>
+                          <Input placeholder="20" type="number" {...field} />
+                        </FormControl>
+                        <FormDescription>Second job hourly pay rate.</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                  <span>Apply backpacker tax rates</span>
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+                  <FormField
+                    control={form.control}
+                    name="backpackerTwo"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Backpacker (Job 2)</FormLabel>
+                        <FormControl>
+                          <div className="flex items-center">
+                            <input
+                              type="checkbox"
+                              checked={field.value ?? false}
+                              onChange={(e) => field.onChange(e.target.checked)}
+                              className="mr-2"
+                            />
+                            <span>Apply backpacker tax rates</span>
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="swingsTwo"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Swings (Job 2)</FormLabel>
+                        <FormControl>
+                          <select
+                            {...field}
+                            className="border rounded px-2 py-1 w-full"
+                          >
+                            <option value="">Select swing</option>
+                            {swings.map((swing) => (
+                              <option key={swing.name} value={swing.name}>
+                                {swing.name}
+                              </option>
+                            ))}
+                          </select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </>
+              ) : (
+                <>
+                  <FormField
+                    control={form.control}
+                    name="salaryTwo"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Yearly Salary (Job 2)</FormLabel>
+                        <FormControl>
+                          <Input placeholder="100000" type="number" {...field} />
+                        </FormControl>
+                        <FormDescription>Second job gross annual salary.</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="backpackerTwo"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Backpacker (Job 2)</FormLabel>
+                        <FormControl>
+                          <div className="flex items-center">
+                            <input
+                              type="checkbox"
+                              checked={field.value ?? false}
+                              onChange={(e) => field.onChange(e.target.checked)}
+                              className="mr-2"
+                            />
+                            <span>Apply backpacker tax rates</span>
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="swingsTwo"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Swings (Job 2)</FormLabel>
+                        <FormControl>
+                          <select
+                            {...field}
+                            className="border rounded px-2 py-1 w-full"
+                          >
+                            <option value="">Select swing</option>
+                            {swings.map((swing) => (
+                              <option key={swing.name} value={swing.name}>
+                                {swing.name}
+                              </option>
+                            ))}
+                          </select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
+            </div>
           )}
-        />
+        </div>
 
-        {/* Example: Dropdown generated from an object */}
-        <FormField
-          control={form.control}
-          name="swings"
-          render={({ field }) => {
-            // Object to loop through
-
-            return (
-              <FormItem>
-                <FormLabel>Swings</FormLabel>
-                <FormControl>
-                  <select
-                    {...field}
-                    className="border rounded px-2 py-1 w-full"
-                  >
-                    {swings.map((swing) => (
-                      <option key={swing.name} value={swing.name}>
-                        {swing.name}
-                      </option>
-                    ))}
-                  </select>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            );
-          }}
-        />
-
-        <Button type="submit">Submit</Button>
+        <div className="flex gap-4 items-center">
+          <Button type="submit">Submit</Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setShowCompare((v) => !v)}
+          >
+            {showCompare ? "Hide Comparison" : "Compare Jobs"}
+          </Button>
+        </div>
 
         {results && (
           <div className="mt-8">
