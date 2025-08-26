@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { FifoCalculator } from "@/components/ui/forms/FifoCalculator";
 
 export default function Home() {

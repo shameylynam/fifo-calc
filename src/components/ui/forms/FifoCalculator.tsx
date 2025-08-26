@@ -31,6 +31,22 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
+// Type for job calculation results
+type JobResults = {
+  swing: string;
+  grossSwing: string;
+  netSwing: string;
+  grossMonth: string;
+  netMonth: string;
+  grossYear: string;
+  netYear: string;
+  annualTax: string;
+  cyclesPerYear: string;
+  cyclesPerMonth: string;
+  workingDaysPerMonth: string;
+  estimatedHourly?: string;
+};
+
 type FifoSwing = {
   name: string;
   daysOn: number;
@@ -55,25 +71,6 @@ const fifoSwingOptions: FifoSwing[] = [
   },
 ];
 
-const hourlySchema = z.object({
-  hourlypay: z.coerce.number().positive({
-    message: "Hourly pay must be a positive number.",
-  }),
-  swings: z.string().min(1, {
-    message: "Please select a swing.",
-  }),
-  backpacker: z.boolean().optional(),
-});
-
-const salarySchema = z.object({
-  salary: z.coerce.number().positive({
-    message: "Salary must be a positive number.",
-  }),
-  swings: z.string().min(1, {
-    message: "Please select a swing.",
-  }),
-  backpacker: z.boolean().optional(),
-});
 // Backpacker tax rates for 2024-2025
 function calculateBackpackerTax(annualIncome: number): number {
   let tax = 0;
@@ -127,28 +124,25 @@ const FifoCalculator = React.forwardRef<
     backpackerTwo: false,
   };
   const mergedSchema = z.object({
-    hourlypay: z.coerce.number().min(0),
-    salary: z.coerce.number().min(0),
-    swings: z.string().min(1, {
-      message: "Please select a swing.",
-    }),
+    hourlypay: z.coerce.number().min(0).transform(Number),
+    salary: z.coerce.number().min(0).transform(Number),
+    swings: z.string().min(1, { message: "Please select a swing." }),
     backpacker: z.boolean().optional(),
-    hourlypayTwo: z.coerce.number().min(0),
-    salaryTwo: z.coerce.number().min(0),
-    swingsTwo: z.string().min(1, {
-      message: "Please select a swing.",
-    }),
+    hourlypayTwo: z.coerce.number().min(0).transform(Number),
+    salaryTwo: z.coerce.number().min(0).transform(Number),
+    swingsTwo: z.string().min(1, { message: "Please select a swing." }),
     backpackerTwo: z.boolean().optional(),
   });
-  const form = useForm<any>({
+
+  const form = useForm({
     resolver: zodResolver(mergedSchema),
     defaultValues,
   });
 
   // 2. Define reusable calculation functions and submit handler.
   const [results, setResults] = React.useState<null | {
-    job1: any;
-    job2: any;
+    job1: JobResults | null;
+    job2: JobResults | null;
   }>(null);
 
   function calculateHourlyResults(
@@ -248,7 +242,7 @@ const FifoCalculator = React.forwardRef<
     };
   }
 
-  function onSubmit(values: any) {
+  function onSubmit(values: z.infer<typeof mergedSchema>) {
     console.log(values);
     let job1Results = null;
     let job2Results = null;
@@ -256,13 +250,13 @@ const FifoCalculator = React.forwardRef<
       job1Results = calculateHourlyResults(
         values.hourlypay,
         values.swings,
-        values.backpacker
+        values.backpacker ?? false
       );
     } else {
       job1Results = calculateSalaryResults(
         values.salary,
         values.swings,
-        values.backpacker
+        values.backpacker ?? false
       );
     }
 
@@ -271,28 +265,18 @@ const FifoCalculator = React.forwardRef<
         job2Results = calculateHourlyResults(
           values.hourlypayTwo,
           values.swingsTwo,
-          values.backpackerTwo
+          values.backpackerTwo ?? false
         );
       } else {
         job2Results = calculateSalaryResults(
           values.salaryTwo,
           values.swingsTwo,
-          values.backpackerTwo
+          values.backpackerTwo ?? false
         );
       }
     }
     setResults({ job1: job1Results, job2: job2Results });
   }
-  // 1st job variables linked to form
-  const hourlyPayJobOne = form.watch("hourlypay");
-  const salaryJobOne = form.watch("salary");
-  const fifoSwingJobOne = form.watch("swings");
-  const backpackerJobOne = form.watch("backpacker");
-  // 2nd job variables linked to form
-  const hourlyPayJobTwo = form.watch("hourlypayTwo");
-  const salaryJobTwo = form.watch("salaryTwo");
-  const fifoSwingJobTwo = form.watch("swingsTwo");
-  const backpackerJobTwo = form.watch("backpackerTwo");
 
   return (
     <Form {...form}>
@@ -336,7 +320,9 @@ const FifoCalculator = React.forwardRef<
                         placeholder="20"
                         type="number"
                         {...field}
-                        value={field.value ?? ""}
+                        value={
+                          field.value !== undefined ? Number(field.value) : ""
+                        }
                       />
                     </FormControl>
                     <FormDescription>
@@ -358,7 +344,9 @@ const FifoCalculator = React.forwardRef<
                         placeholder="100000"
                         type="number"
                         {...field}
-                        value={field.value ?? ""}
+                        value={
+                          field.value !== undefined ? Number(field.value) : ""
+                        }
                       />
                     </FormControl>
                     <FormDescription>
@@ -449,7 +437,9 @@ const FifoCalculator = React.forwardRef<
                           placeholder="20"
                           type="number"
                           {...field}
-                          value={field.value ?? ""}
+                          value={
+                            field.value !== undefined ? Number(field.value) : ""
+                          }
                         />
                       </FormControl>
                       <FormDescription>
@@ -471,7 +461,9 @@ const FifoCalculator = React.forwardRef<
                           placeholder="100000"
                           type="number"
                           {...field}
-                          value={field.value ?? ""}
+                          value={
+                            field.value !== undefined ? Number(field.value) : ""
+                          }
                         />
                       </FormControl>
                       <FormDescription>
