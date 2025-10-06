@@ -63,8 +63,18 @@ export function FifoJobInput({
                 <Input
                   placeholder="20"
                   type="number"
-                  {...field}
-                  value={field.value !== undefined ? Number(field.value) : ""}
+                  value={
+                    typeof field.value === "number" && field.value !== 0
+                      ? field.value
+                      : ""
+                  }
+                  onChange={(e) =>
+                    field.onChange(
+                      e.target.value === "" ? 0 : Number(e.target.value)
+                    )
+                  }
+                  onBlur={field.onBlur}
+                  name={field.name}
                 />
               </FormControl>
               <FormDescription>
@@ -87,8 +97,18 @@ export function FifoJobInput({
                 <Input
                   placeholder="100000"
                   type="number"
-                  {...field}
-                  value={field.value !== undefined ? Number(field.value) : ""}
+                  value={
+                    typeof field.value === "number" && field.value !== 0
+                      ? field.value
+                      : ""
+                  }
+                  onChange={(e) =>
+                    field.onChange(
+                      e.target.value === "" ? 0 : Number(e.target.value)
+                    )
+                  }
+                  onBlur={field.onBlur}
+                  name={field.name}
                 />
               </FormControl>
               <FormDescription>

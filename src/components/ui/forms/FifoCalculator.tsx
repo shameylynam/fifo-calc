@@ -27,7 +27,7 @@ const FifoCalculator = React.forwardRef<
   const [payTypeJob2, setPayTypeJob2] = React.useState<PayType>("hourly");
   const [showCompare, setShowCompare] = React.useState(false);
 
-  const form = useForm<FifoFormValues>({
+  const form = useForm({
     resolver: zodResolver(fifoFormSchema),
     defaultValues,
   });
