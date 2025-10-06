@@ -9,6 +9,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+import { InfoTooltip } from "@/components/ui/InfoTooltip";
+
 interface FifoResultsTableProps {
   results: JobResults;
   jobNumber: 1 | 2;
@@ -23,7 +25,11 @@ export function FifoResultsTable({
       <TableCaption>FIFO pay breakdown (Job {jobNumber})</TableCaption>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-[220px]">Metric</TableHead>
+          <TableHead className="w-[220px]">
+            <InfoTooltip text="The FIFO swing pattern (e.g. 8 days on, 6 days off)">
+              Metric
+            </InfoTooltip>
+          </TableHead>
           <TableHead>Value</TableHead>
         </TableRow>
       </TableHeader>
