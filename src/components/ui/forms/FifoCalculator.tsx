@@ -53,7 +53,7 @@ type FifoSwing = {
   daysOff: number;
 };
 
-const fifoSwingOptions: FifoSwing[] = [
+const fifoSwingOptions: readonly FifoSwing[] = [
   {
     name: "8/6",
     daysOn: 8,
@@ -69,7 +69,13 @@ const fifoSwingOptions: FifoSwing[] = [
     daysOn: 14,
     daysOff: 14,
   },
-];
+] as const;
+
+// Constants for calculations
+const AVERAGE_DAYS_PER_MONTH = 30.44;
+const AVERAGE_DAYS_PER_YEAR = 365.25;
+const HOURS_PER_DAY = 12;
+const MONTHS_PER_YEAR = 12;
 
 // Backpacker tax rates for 2024-2025
 function calculateBackpackerTax(annualIncome: number): number {
@@ -149,31 +155,30 @@ const FifoCalculator = React.forwardRef<
     hourlypay: number,
     swingName: string,
     backpacker: boolean
-  ) {
+  ): JobResults | null {
     const selectedFifoSwing = fifoSwingOptions.find(
-      (s: FifoSwing) => s.name === swingName
+      (s) => s.name === swingName
     );
     if (!selectedFifoSwing) return null;
     const swingCycleLength =
       selectedFifoSwing.daysOn + selectedFifoSwing.daysOff;
-    const cyclesPerMonth = 30.44 / swingCycleLength;
-    const cyclesPerYear = 365.25 / swingCycleLength;
+    const cyclesPerMonth = AVERAGE_DAYS_PER_MONTH / swingCycleLength;
+    const cyclesPerYear = AVERAGE_DAYS_PER_YEAR / swingCycleLength;
     const workingDaysPerMonth = cyclesPerMonth * selectedFifoSwing.daysOn;
     const currency = new Intl.NumberFormat("en-AU", {
       style: "currency",
       currency: "AUD",
     });
     const number = new Intl.NumberFormat("en-AU", { maximumFractionDigits: 2 });
-    const hoursPerDay = 12;
-    const dailyPay = hourlypay * hoursPerDay;
+    const dailyPay = hourlypay * HOURS_PER_DAY;
     const swingCyclePay = selectedFifoSwing.daysOn * dailyPay;
     const annualPay = swingCyclePay * cyclesPerYear;
     const annualTax = backpacker
       ? calculateBackpackerTax(annualPay)
       : calculateAustralianTax(annualPay);
     const netAnnualPay = annualPay - annualTax;
-    const netMonthlyPay = netAnnualPay / 12;
-    const grossMonthlyPay = annualPay / 12;
+    const netMonthlyPay = netAnnualPay / MONTHS_PER_YEAR;
+    const grossMonthlyPay = annualPay / MONTHS_PER_YEAR;
     const swingTax = backpacker
       ? calculateBackpackerTax(swingCyclePay)
       : calculateAustralianTax(swingCyclePay);
@@ -197,15 +202,15 @@ const FifoCalculator = React.forwardRef<
     salary: number,
     swingName: string,
     backpacker: boolean
-  ) {
+  ): JobResults | null {
     const selectedFifoSwing = fifoSwingOptions.find(
-      (s: FifoSwing) => s.name === swingName
+      (s) => s.name === swingName
     );
     if (!selectedFifoSwing) return null;
     const swingCycleLength =
       selectedFifoSwing.daysOn + selectedFifoSwing.daysOff;
-    const cyclesPerMonth = 30.44 / swingCycleLength;
-    const cyclesPerYear = 365.25 / swingCycleLength;
+    const cyclesPerMonth = AVERAGE_DAYS_PER_MONTH / swingCycleLength;
+    const cyclesPerYear = AVERAGE_DAYS_PER_YEAR / swingCycleLength;
     const workingDaysPerMonth = cyclesPerMonth * selectedFifoSwing.daysOn;
     const currency = new Intl.NumberFormat("en-AU", {
       style: "currency",
@@ -217,14 +222,15 @@ const FifoCalculator = React.forwardRef<
       ? calculateBackpackerTax(annualPay)
       : calculateAustralianTax(annualPay);
     const netAnnualPay = annualPay - annualTax;
-    const grossMonthlyPay = annualPay / 12;
-    const netMonthlyPay = netAnnualPay / 12;
+    const grossMonthlyPay = annualPay / MONTHS_PER_YEAR;
+    const netMonthlyPay = netAnnualPay / MONTHS_PER_YEAR;
     const swingCyclePay = annualPay / cyclesPerYear;
     const swingTax = backpacker
       ? calculateBackpackerTax(swingCyclePay)
       : calculateAustralianTax(swingCyclePay);
     const netPayPerSwingCycle = swingCyclePay - swingTax;
-    const hoursPerYear = selectedFifoSwing.daysOn * 12 * cyclesPerYear;
+    const hoursPerYear =
+      selectedFifoSwing.daysOn * HOURS_PER_DAY * cyclesPerYear;
     const estimatedHourly = annualPay / hoursPerYear;
     return {
       swing: selectedFifoSwing.name,
