@@ -1,10 +1,7 @@
 import type { NextConfig } from "next";
 
-const repoName = "fifo-calc";
 const nextConfig: NextConfig = {
-  basePath: "/" + repoName,
-  assetPrefix: "/" + repoName + "/",
-  output: "export", // Enables static export for GitHub Pages
+  output: "export", // Enables static export for Azure Static Web Apps
 };
 
 export default nextConfig;

@@ -1,0 +1,23 @@
+{
+  "platform": {
+    "apiRuntime": "node:18"
+  },
+  "routes": [
+    {
+      "route": "/_next/*",
+      "serve": "/_next/index.html"
+    },
+    {
+      "route": "/api/*",
+      "rewrite": "/api/index.js"
+    },
+    {
+      "route": "/",
+      "serve": "/index.html"
+    },
+    {
+      "route": "/*",
+      "serve": "/index.html"
+    }
+  ]
+}
