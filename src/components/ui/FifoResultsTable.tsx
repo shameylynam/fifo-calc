@@ -66,6 +66,31 @@ export function FifoResultsTable({
           <TableCell>Estimated annual tax</TableCell>
           <TableCell>{results.annualTax}</TableCell>
         </TableRow>
+        {results.superPerYear && (
+          <TableRow>
+            <TableCell>
+              Employer superannuation per year
+              {results.superRate && (
+                <span className="ml-2 text-xs text-muted-foreground">
+                  ({results.superRate})
+                </span>
+              )}
+            </TableCell>
+            <TableCell>{results.superPerYear}</TableCell>
+          </TableRow>
+        )}
+        {results.superPerMonth && (
+          <TableRow>
+            <TableCell>Employer superannuation per month</TableCell>
+            <TableCell>{results.superPerMonth}</TableCell>
+          </TableRow>
+        )}
+        {results.superPerSwing && (
+          <TableRow>
+            <TableCell>Employer superannuation per swing</TableCell>
+            <TableCell>{results.superPerSwing}</TableCell>
+          </TableRow>
+        )}
         <TableRow>
           <TableCell>Cycles per year</TableCell>
           <TableCell>{results.cyclesPerYear}</TableCell>

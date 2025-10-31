@@ -1,5 +1,6 @@
 import type { PayType, FifoSwing } from "@/types/fifo.types";
 import type { Control } from "react-hook-form";
+import { useWatch } from "react-hook-form";
 import type { FifoFormValues } from "@/schemas/fifo.schema";
 import {
   FormControl,
@@ -28,6 +29,7 @@ export function FifoJobInput({
   const suffix = jobNumber === 2 ? "Two" : "";
   const label = jobNumber === 2 ? " (Job 2)" : "";
 
+  const superEnabled = useWatch({ control, name: `superannuation${suffix}` });
   return (
     <div className="flex-1 flex flex-col gap-6">
       <div className="flex gap-4 mb-4">
@@ -121,6 +123,104 @@ export function FifoJobInput({
           )}
         />
       )}
+
+      {/* Superannuation Toggle and Rate */}
+      <FormField
+        control={control}
+        name={`superannuation${suffix}` as keyof FifoFormValues}
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Superannuation{label}</FormLabel>
+            <FormControl>
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={Boolean(field.value)}
+                  onChange={(e) => field.onChange(e.target.checked)}
+                  className="mr-2"
+                />
+                <span>Include superannuation</span>
+              </div>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      {superEnabled ? (
+        <>
+          <FormField
+            control={control}
+            name={`superRate${suffix}` as keyof FifoFormValues}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Superannuation Rate (%) {label}</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="12"
+                    type="number"
+                    min={0}
+                    max={100}
+                    value={
+                      typeof field.value === "number" && field.value !== 0
+                        ? field.value
+                        : ""
+                    }
+                    onChange={(e) =>
+                      field.onChange(
+                        e.target.value === "" ? 0 : Number(e.target.value)
+                      )
+                    }
+                    onBlur={field.onBlur}
+                    name={field.name}
+                  />
+                </FormControl>
+                <FormDescription>
+                  You can change the superannuation rate if needed. Default is
+                  12%.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {payType === "hourly" && (
+            <FormField
+              control={control}
+              name={`superHoursPerDay${suffix}` as keyof FifoFormValues}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Super Hours Per Day{label}</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="8"
+                      type="number"
+                      min={1}
+                      max={12}
+                      value={
+                        typeof field.value === "number" && field.value !== 0
+                          ? field.value
+                          : ""
+                      }
+                      onChange={(e) => {
+                        let val = Number(e.target.value);
+                        if (val > 12) val = 12;
+                        if (val < 1) val = 1;
+                        field.onChange(e.target.value === "" ? 8 : val);
+                      }}
+                      onBlur={field.onBlur}
+                      name={field.name}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Number of hours per day that super is paid on (default 8,
+                    max 12).
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+        </>
+      ) : null}
 
       <FormField
         control={control}

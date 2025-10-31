@@ -12,6 +12,10 @@ export type JobResults = {
   cyclesPerMonth: string;
   workingDaysPerMonth: string;
   estimatedHourly?: string;
+  superPerYear?: string;
+  superPerMonth?: string;
+  superPerSwing?: string;
+  superRate?: string;
 };
 
 export type FifoSwing = {

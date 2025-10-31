@@ -21,6 +21,60 @@ function createFormatters() {
   return { currency, number };
 }
 
+// Helper for superannuation calculations
+function calculateSuperannuation(
+  annualPay: number,
+  cyclesPerYear: number,
+  superannuation?: boolean,
+  superRate?: number
+) {
+  let superPerYear = 0;
+  let superPerMonth = 0;
+  let superPerSwing = 0;
+  let superRateDisplay = "";
+  if (superannuation && superRate && superRate > 0) {
+    superPerYear = annualPay * (superRate / 100);
+    superPerMonth = superPerYear / MONTHS_PER_YEAR;
+    superPerSwing = superPerYear / cyclesPerYear;
+    const { number } = createFormatters();
+    superRateDisplay = number.format(superRate) + "%";
+  }
+  return {
+    superPerYear,
+    superPerMonth,
+    superPerSwing,
+    superRateDisplay,
+  };
+}
+
+// Helper for formatting JobResults
+function formatJobResults(
+  base: Omit<
+    JobResults,
+    "superPerYear" | "superPerMonth" | "superPerSwing" | "superRate"
+  > & {
+    superPerYear?: number;
+    superPerMonth?: number;
+    superPerSwing?: number;
+    superRateDisplay?: string;
+  }
+) {
+  const { currency } = createFormatters();
+  return {
+    ...base,
+    superPerYear: base.superPerYear
+      ? currency.format(base.superPerYear)
+      : undefined,
+    superPerMonth: base.superPerMonth
+      ? currency.format(base.superPerMonth)
+      : undefined,
+    superPerSwing: base.superPerSwing
+      ? currency.format(base.superPerSwing)
+      : undefined,
+    superRate: base.superRateDisplay || undefined,
+  };
+}
+
 // Helper function to calculate swing cycle metrics
 function calculateSwingCycleMetrics(selectedFifoSwing: FifoSwing) {
   const swingCycleLength = selectedFifoSwing.daysOn + selectedFifoSwing.daysOff;
@@ -39,7 +93,10 @@ function calculateSwingCycleMetrics(selectedFifoSwing: FifoSwing) {
 export function calculateHourlyResults(
   hourlypay: number,
   swingName: string,
-  backpacker: boolean
+  backpacker: boolean,
+  superannuation?: boolean,
+  superRate?: number,
+  superHoursPerDay?: number
 ): JobResults | null {
   const selectedFifoSwing = fifoSwingOptions.find((s) => s.name === swingName);
   if (!selectedFifoSwing) return null;
@@ -48,9 +105,15 @@ export function calculateHourlyResults(
     calculateSwingCycleMetrics(selectedFifoSwing);
   const { currency, number } = createFormatters();
 
+  const hoursPerDayForSuper =
+    superHoursPerDay && superHoursPerDay > 0 ? superHoursPerDay : 8;
   const dailyPay = hourlypay * HOURS_PER_DAY;
   const swingCyclePay = selectedFifoSwing.daysOn * dailyPay;
   const annualPay = swingCyclePay * cyclesPerYear;
+
+  // Calculate super only on specified hours per day (default 8, max 12)
+  const superAnnualBase =
+    hourlypay * hoursPerDayForSuper * selectedFifoSwing.daysOn * cyclesPerYear;
   const annualTax = backpacker
     ? calculateBackpackerTax(annualPay)
     : calculateAustralianTax(annualPay);
@@ -60,7 +123,14 @@ export function calculateHourlyResults(
   const swingTax = annualTax / cyclesPerYear;
   const netPayPerSwingCycle = swingCyclePay - swingTax;
 
-  return {
+  const superData = calculateSuperannuation(
+    superAnnualBase,
+    cyclesPerYear,
+    superannuation,
+    superRate
+  );
+
+  return formatJobResults({
     swing: selectedFifoSwing.name,
     grossSwing: currency.format(swingCyclePay),
     netSwing: currency.format(netPayPerSwingCycle),
@@ -72,13 +142,16 @@ export function calculateHourlyResults(
     cyclesPerYear: number.format(cyclesPerYear),
     cyclesPerMonth: number.format(cyclesPerMonth),
     workingDaysPerMonth: number.format(workingDaysPerMonth),
-  };
+    ...superData,
+  });
 }
 
 export function calculateSalaryResults(
   salary: number,
   swingName: string,
-  backpacker: boolean
+  backpacker: boolean,
+  superannuation?: boolean,
+  superRate?: number
 ): JobResults | null {
   const selectedFifoSwing = fifoSwingOptions.find((s) => s.name === swingName);
   if (!selectedFifoSwing) return null;
@@ -100,7 +173,14 @@ export function calculateSalaryResults(
   const hoursPerYear = selectedFifoSwing.daysOn * HOURS_PER_DAY * cyclesPerYear;
   const estimatedHourly = annualPay / hoursPerYear;
 
-  return {
+  const superData = calculateSuperannuation(
+    annualPay,
+    cyclesPerYear,
+    superannuation,
+    superRate
+  );
+
+  return formatJobResults({
     swing: selectedFifoSwing.name,
     grossSwing: currency.format(swingCyclePay),
     netSwing: currency.format(netPayPerSwingCycle),
@@ -113,5 +193,6 @@ export function calculateSalaryResults(
     cyclesPerMonth: number.format(cyclesPerMonth),
     workingDaysPerMonth: number.format(workingDaysPerMonth),
     estimatedHourly: currency.format(estimatedHourly),
-  };
+    ...superData,
+  });
 }

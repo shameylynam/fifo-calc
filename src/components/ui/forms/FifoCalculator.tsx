@@ -46,13 +46,18 @@ const FifoCalculator = React.forwardRef<
       job1Results = calculateHourlyResults(
         values.hourlypay,
         values.swings,
-        values.backpacker ?? false
+        values.backpacker ?? false,
+        values.superannuation ?? false,
+        values.superRate ?? 12,
+        values.superHoursPerDay ?? 8
       );
     } else {
       job1Results = calculateSalaryResults(
         values.salary,
         values.swings,
-        values.backpacker ?? false
+        values.backpacker ?? false,
+        values.superannuation ?? false,
+        values.superRate ?? 12
       );
     }
 
@@ -61,13 +66,18 @@ const FifoCalculator = React.forwardRef<
         job2Results = calculateHourlyResults(
           values.hourlypayTwo,
           values.swingsTwo,
-          values.backpackerTwo ?? false
+          values.backpackerTwo ?? false,
+          values.superannuationTwo ?? false,
+          values.superRateTwo ?? 12,
+          values.superHoursPerDayTwo ?? 8
         );
       } else {
         job2Results = calculateSalaryResults(
           values.salaryTwo,
           values.swingsTwo,
-          values.backpackerTwo ?? false
+          values.backpackerTwo ?? false,
+          values.superannuationTwo ?? false,
+          values.superRateTwo ?? 12
         );
       }
     }
