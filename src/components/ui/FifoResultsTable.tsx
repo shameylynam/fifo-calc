@@ -16,6 +16,21 @@ interface FifoResultsTableProps {
   jobNumber: 1 | 2;
 }
 
+// Helper function to format currency
+function formatCurrency(value: number): string {
+  return new Intl.NumberFormat("en-AU", {
+    style: "currency",
+    currency: "AUD",
+  }).format(value);
+}
+
+// Helper function to format numbers
+function formatNumber(value: number): string {
+  return new Intl.NumberFormat("en-AU", { maximumFractionDigits: 2 }).format(
+    value
+  );
+}
+
 export function FifoResultsTable({
   results,
   jobNumber,
@@ -40,42 +55,42 @@ export function FifoResultsTable({
         </TableRow>
         <TableRow>
           <TableCell>Gross pay per swing</TableCell>
-          <TableCell>{results.grossSwing}</TableCell>
+          <TableCell>{formatCurrency(results.grossSwing)}</TableCell>
         </TableRow>
         <TableRow>
           <TableCell>Net pay per swing</TableCell>
-          <TableCell>{results.netSwing}</TableCell>
+          <TableCell>{formatCurrency(results.netSwing)}</TableCell>
         </TableRow>
         <TableRow>
           <TableCell>Gross pay per month (avg)</TableCell>
-          <TableCell>{results.grossMonth}</TableCell>
+          <TableCell>{formatCurrency(results.grossMonth)}</TableCell>
         </TableRow>
         <TableRow>
           <TableCell>Net pay per month (avg)</TableCell>
-          <TableCell>{results.netMonth}</TableCell>
+          <TableCell>{formatCurrency(results.netMonth)}</TableCell>
         </TableRow>
         <TableRow>
           <TableCell>Gross pay per year</TableCell>
-          <TableCell>{results.grossYear}</TableCell>
+          <TableCell>{formatCurrency(results.grossYear)}</TableCell>
         </TableRow>
         <TableRow>
           <TableCell>Net pay per year</TableCell>
-          <TableCell>{results.netYear}</TableCell>
+          <TableCell>{formatCurrency(results.netYear)}</TableCell>
         </TableRow>
         <TableRow>
           <TableCell>Estimated annual tax</TableCell>
-          <TableCell>{results.annualTax}</TableCell>
+          <TableCell>{formatCurrency(results.annualTax)}</TableCell>
         </TableRow>
         {results.hecsPerYear && (
           <TableRow>
             <TableCell>HECS-HELP repayment per year</TableCell>
-            <TableCell>{results.hecsPerYear}</TableCell>
+            <TableCell>{formatCurrency(results.hecsPerYear)}</TableCell>
           </TableRow>
         )}
         {results.hecsPerSwing && (
           <TableRow>
             <TableCell>HECS-HELP repayment per swing</TableCell>
-            <TableCell>{results.hecsPerSwing}</TableCell>
+            <TableCell>{formatCurrency(results.hecsPerSwing)}</TableCell>
           </TableRow>
         )}
         {results.superPerYear && (
@@ -84,41 +99,41 @@ export function FifoResultsTable({
               Employer superannuation per year
               {results.superRate && (
                 <span className="ml-2 text-xs text-muted-foreground">
-                  ({results.superRate})
+                  ({formatNumber(results.superRate)}%)
                 </span>
               )}
             </TableCell>
-            <TableCell>{results.superPerYear}</TableCell>
+            <TableCell>{formatCurrency(results.superPerYear)}</TableCell>
           </TableRow>
         )}
         {results.superPerMonth && (
           <TableRow>
             <TableCell>Employer superannuation per month</TableCell>
-            <TableCell>{results.superPerMonth}</TableCell>
+            <TableCell>{formatCurrency(results.superPerMonth)}</TableCell>
           </TableRow>
         )}
         {results.superPerSwing && (
           <TableRow>
             <TableCell>Employer superannuation per swing</TableCell>
-            <TableCell>{results.superPerSwing}</TableCell>
+            <TableCell>{formatCurrency(results.superPerSwing)}</TableCell>
           </TableRow>
         )}
         <TableRow>
           <TableCell>Cycles per year</TableCell>
-          <TableCell>{results.cyclesPerYear}</TableCell>
+          <TableCell>{formatNumber(results.cyclesPerYear)}</TableCell>
         </TableRow>
         <TableRow>
           <TableCell>Cycles per month</TableCell>
-          <TableCell>{results.cyclesPerMonth}</TableCell>
+          <TableCell>{formatNumber(results.cyclesPerMonth)}</TableCell>
         </TableRow>
         <TableRow>
           <TableCell>Working days per month (avg)</TableCell>
-          <TableCell>{results.workingDaysPerMonth}</TableCell>
+          <TableCell>{formatNumber(results.workingDaysPerMonth)}</TableCell>
         </TableRow>
         {results.estimatedHourly && (
           <TableRow>
             <TableCell>Estimated hourly rate</TableCell>
-            <TableCell>{results.estimatedHourly}</TableCell>
+            <TableCell>{formatCurrency(results.estimatedHourly)}</TableCell>
           </TableRow>
         )}
       </TableBody>

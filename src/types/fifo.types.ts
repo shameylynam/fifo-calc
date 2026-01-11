@@ -1,23 +1,23 @@
 // Type for job calculation results
 export type JobResults = {
   swing: string;
-  grossSwing: string;
-  netSwing: string;
-  grossMonth: string;
-  netMonth: string;
-  grossYear: string;
-  netYear: string;
-  annualTax: string;
-  cyclesPerYear: string;
-  cyclesPerMonth: string;
-  workingDaysPerMonth: string;
-  estimatedHourly?: string;
-  superPerYear?: string;
-  superPerMonth?: string;
-  superPerSwing?: string;
-  superRate?: string;
-  hecsPerYear?: string;
-  hecsPerSwing?: string;
+  grossSwing: number;
+  netSwing: number;
+  grossMonth: number;
+  netMonth: number;
+  grossYear: number;
+  netYear: number;
+  annualTax: number;
+  cyclesPerYear: number;
+  cyclesPerMonth: number;
+  workingDaysPerMonth: number;
+  estimatedHourly?: number;
+  superPerYear?: number;
+  superPerMonth?: number;
+  superPerSwing?: number;
+  superRate?: number;
+  hecsPerYear?: number;
+  hecsPerSwing?: number;
 };
 
 export type FifoSwing = {

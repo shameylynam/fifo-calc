@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { cn } from "@/lib/utils";
 import { Form } from "@/components/ui/form";
+import { PayStackedChart } from "@/components/ui/payStackedChart";
 import { Button } from "@/components/ui/button";
 import { FifoJobInput } from "@/components/ui/FifoJobInput";
 import { FifoResultsTable } from "@/components/ui/FifoResultsTable";
@@ -124,13 +125,25 @@ const FifoCalculator = React.forwardRef<
         </div>
 
         {results && (
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
-            {results.job1 && (
-              <FifoResultsTable results={results.job1} jobNumber={1} />
-            )}
-            {results.job2 && (
-              <FifoResultsTable results={results.job2} jobNumber={2} />
-            )}
+          <div className="mt-8 grid grid-rows-[auto_1fr] grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Top row: 100% width chart */}
+            <div className="row-start-1 row-end-2 col-span-1 md:col-span-2">
+              <PayStackedChart
+                results1={results.job1}
+                results2={results.job2}
+              />
+            </div>
+            {/* Bottom row: two 50% columns for results tables */}
+            <div className="row-start-2 col-span-1">
+              {results.job1 && (
+                <FifoResultsTable results={results.job1} jobNumber={1} />
+              )}
+            </div>
+            <div className="row-start-2 col-span-1">
+              {results.job2 && (
+                <FifoResultsTable results={results.job2} jobNumber={2} />
+              )}
+            </div>
           </div>
         )}
       </form>
