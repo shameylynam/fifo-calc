@@ -246,6 +246,28 @@ export function FifoJobInput({
 
       <FormField
         control={control}
+        name={`hecsDebt${suffix}` as keyof FifoFormValues}
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>HECS-HELP Debt{label}</FormLabel>
+            <FormControl>
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={Boolean(field.value)}
+                  onChange={(e) => field.onChange(e.target.checked)}
+                  className="mr-2"
+                />
+                <span>Apply HECS-HELP repayments</span>
+              </div>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={control}
         name={`swings${suffix}` as keyof FifoFormValues}
         render={({ field }) => (
           <FormItem>
