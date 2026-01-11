@@ -16,7 +16,8 @@ export type JobResults = {
   superPerMonth?: string;
   superPerSwing?: string;
   superRate?: string;
-  hecsRepayment?: string;
+  hecsPerYear?: string;
+  hecsPerSwing?: string;
 };
 
 export type FifoSwing = {

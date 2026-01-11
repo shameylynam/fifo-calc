@@ -1,30 +1,9 @@
-// 2024–25 HECS-HELP Repayment Bands
-function calculateHecsRepayment(annualIncome: number): number {
-  if (annualIncome < 54435) return 0;
-  if (annualIncome <= 62850) return annualIncome * 0.01;
-  if (annualIncome <= 66620) return annualIncome * 0.02;
-  if (annualIncome <= 70618) return annualIncome * 0.025;
-  if (annualIncome <= 74855) return annualIncome * 0.03;
-  if (annualIncome <= 79346) return annualIncome * 0.035;
-  if (annualIncome <= 84107) return annualIncome * 0.04;
-  if (annualIncome <= 89154) return annualIncome * 0.045;
-  if (annualIncome <= 94503) return annualIncome * 0.05;
-  if (annualIncome <= 100174) return annualIncome * 0.055;
-  if (annualIncome <= 106185) return annualIncome * 0.06;
-  if (annualIncome <= 112556) return annualIncome * 0.065;
-  if (annualIncome <= 119309) return annualIncome * 0.07;
-  if (annualIncome <= 126467) return annualIncome * 0.075;
-  if (annualIncome <= 134056) return annualIncome * 0.08;
-  if (annualIncome <= 142100) return annualIncome * 0.085;
-  if (annualIncome <= 150626) return annualIncome * 0.09;
-  if (annualIncome <= 159663) return annualIncome * 0.095;
-  return annualIncome * 0.1;
-}
 import type { JobResults, FifoSwing } from "@/types/fifo.types";
 import {
   calculateBackpackerTax,
   calculateAustralianTax,
 } from "./tax-calculator";
+import { calculatehecsPerYear } from "./hecs-calculations";
 import {
   fifoSwingOptions,
   AVERAGE_DAYS_PER_MONTH,
@@ -140,16 +119,16 @@ export function calculateHourlyResults(
   const annualTax = backpacker
     ? calculateBackpackerTax(annualPay)
     : calculateAustralianTax(annualPay);
-  let hecsRepayment = 0;
+  let hecsPerYear = 0;
   if (hecsDebt) {
-    hecsRepayment = calculateHecsRepayment(annualPay);
+    hecsPerYear = calculatehecsPerYear(annualPay);
   }
-  const netAnnualPay = annualPay - annualTax - hecsRepayment;
+  const netAnnualPay = annualPay - annualTax - hecsPerYear;
   const netMonthlyPay = netAnnualPay / MONTHS_PER_YEAR;
   const grossMonthlyPay = annualPay / MONTHS_PER_YEAR;
   const swingTax = annualTax / cyclesPerYear;
-  const swingHecs = hecsRepayment / cyclesPerYear;
-  const netPayPerSwingCycle = swingCyclePay - swingTax - swingHecs;
+  const hecsPerSwing = hecsPerYear / cyclesPerYear;
+  const netPayPerSwingCycle = swingCyclePay - swingTax - hecsPerSwing;
 
   const superData = calculateSuperannuation(
     superAnnualBase,
@@ -167,7 +146,8 @@ export function calculateHourlyResults(
     grossYear: currency.format(annualPay),
     netYear: currency.format(netAnnualPay),
     annualTax: currency.format(annualTax),
-    hecsRepayment: hecsRepayment ? currency.format(hecsRepayment) : undefined,
+    hecsPerYear: hecsPerYear ? currency.format(hecsPerYear) : undefined,
+    hecsPerSwing: hecsPerSwing ? currency.format(hecsPerSwing) : undefined,
     cyclesPerYear: number.format(cyclesPerYear),
     cyclesPerMonth: number.format(cyclesPerMonth),
     workingDaysPerMonth: number.format(workingDaysPerMonth),
@@ -194,17 +174,17 @@ export function calculateSalaryResults(
   const annualTax = backpacker
     ? calculateBackpackerTax(annualPay)
     : calculateAustralianTax(annualPay);
-  let hecsRepayment = 0;
+  let hecsPerYear = 0;
   if (hecsDebt) {
-    hecsRepayment = calculateHecsRepayment(annualPay);
+    hecsPerYear = calculatehecsPerYear(annualPay);
   }
-  const netAnnualPay = annualPay - annualTax - hecsRepayment;
+  const netAnnualPay = annualPay - annualTax - hecsPerYear;
   const grossMonthlyPay = annualPay / MONTHS_PER_YEAR;
   const netMonthlyPay = netAnnualPay / MONTHS_PER_YEAR;
   const swingCyclePay = annualPay / cyclesPerYear;
   const swingTax = annualTax / cyclesPerYear;
-  const swingHecs = hecsRepayment / cyclesPerYear;
-  const netPayPerSwingCycle = swingCyclePay - swingTax - swingHecs;
+  const hecsPerSwing = hecsPerYear / cyclesPerYear;
+  const netPayPerSwingCycle = swingCyclePay - swingTax - hecsPerSwing;
   const hoursPerYear = selectedFifoSwing.daysOn * HOURS_PER_DAY * cyclesPerYear;
   const estimatedHourly = annualPay / hoursPerYear;
 
@@ -224,7 +204,8 @@ export function calculateSalaryResults(
     grossYear: currency.format(annualPay),
     netYear: currency.format(netAnnualPay),
     annualTax: currency.format(annualTax),
-    hecsRepayment: hecsRepayment ? currency.format(hecsRepayment) : undefined,
+    hecsPerYear: hecsPerYear ? currency.format(hecsPerYear) : undefined,
+    hecsPerSwing: hecsPerSwing ? currency.format(hecsPerSwing) : undefined,
     cyclesPerYear: number.format(cyclesPerYear),
     cyclesPerMonth: number.format(cyclesPerMonth),
     workingDaysPerMonth: number.format(workingDaysPerMonth),

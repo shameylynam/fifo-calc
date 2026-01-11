@@ -66,10 +66,16 @@ export function FifoResultsTable({
           <TableCell>Estimated annual tax</TableCell>
           <TableCell>{results.annualTax}</TableCell>
         </TableRow>
-        {results.hecsRepayment && (
+        {results.hecsPerYear && (
           <TableRow>
-            <TableCell>HECS-HELP repayment</TableCell>
-            <TableCell>{results.hecsRepayment}</TableCell>
+            <TableCell>HECS-HELP repayment per year</TableCell>
+            <TableCell>{results.hecsPerYear}</TableCell>
+          </TableRow>
+        )}
+        {results.hecsPerSwing && (
+          <TableRow>
+            <TableCell>HECS-HELP repayment per swing</TableCell>
+            <TableCell>{results.hecsPerSwing}</TableCell>
           </TableRow>
         )}
         {results.superPerYear && (
