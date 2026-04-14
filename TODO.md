@@ -25,6 +25,13 @@ A to-do list of pages and components needed before putting this project live.
 
 ## Layout / Shared Templates
 
+- [ ] **General Page Template** – `src/components/ui/PageContainer.tsx`
+  Reusable wrapper component used by every page. Must include a responsive container that:
+  - Centers content with a max-width on large screens.
+  - Uses fluid horizontal padding that scales correctly on mobile, tablet, and desktop (e.g. `px-4 sm:px-8 md:px-16 lg:px-32`).
+  - Ensures content never overflows or touches the viewport edge on small devices.
+  Apply this container in `src/app/layout.tsx` so all pages inherit the correct layout automatically.
+
 - [ ] **Header / Navigation** – `src/components/ui/Header.tsx`
   Site-wide header with logo/site name and navigation links (Home, About, etc.).
 
