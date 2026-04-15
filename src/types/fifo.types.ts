@@ -18,6 +18,7 @@ export type JobResults = {
   superRate?: number;
   hecsPerYear?: number;
   hecsPerSwing?: number;
+  medicareLevy?: number;
 };
 
 export type FifoSwing = {

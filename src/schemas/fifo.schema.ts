@@ -17,6 +17,8 @@ export const fifoFormSchema = z.object({
   superHoursPerDayTwo: z.number().min(1).max(12).optional(),
   hecsDebt: z.boolean().optional(),
   hecsDebtTwo: z.boolean().optional(),
+  medicareLevy: z.number().min(0).optional(),
+  medicareLevyTwo: z.number().min(0).optional(),
 });
 
 export const defaultValues: z.infer<typeof fifoFormSchema> = {
@@ -36,6 +38,8 @@ export const defaultValues: z.infer<typeof fifoFormSchema> = {
   superHoursPerDayTwo: 8,
   hecsDebt: false,
   hecsDebtTwo: false,
+  medicareLevy: 0,
+  medicareLevyTwo: 0,
 };
 
 export type FifoFormValues = z.infer<typeof fifoFormSchema>;

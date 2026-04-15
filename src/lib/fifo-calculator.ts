@@ -100,14 +100,22 @@ export function calculateHourlyResults(
   const annualTax = backpacker
     ? calculateBackpackerTax(annualPay)
     : calculateAustralianTax(annualPay);
+  let totalAnnualTax = 0;
+  let medicareLevy = 0;
+  if (backpacker) {
+    totalAnnualTax = annualTax;
+  } else {
+    medicareLevy = annualPay * 0.02;
+    totalAnnualTax = annualTax + medicareLevy;
+  }
   let hecsPerYear = 0;
   if (hecsDebt) {
     hecsPerYear = calculatehecsPerYear(annualPay);
   }
-  const netAnnualPay = annualPay - annualTax - hecsPerYear;
+  const netAnnualPay = annualPay - totalAnnualTax - hecsPerYear;
   const netMonthlyPay = netAnnualPay / MONTHS_PER_YEAR;
   const grossMonthlyPay = annualPay / MONTHS_PER_YEAR;
-  const swingTax = annualTax / cyclesPerYear;
+  const swingTax = totalAnnualTax / cyclesPerYear;
   const hecsPerSwing = hecsPerYear / cyclesPerYear;
   const netPayPerSwingCycle = swingCyclePay - swingTax - hecsPerSwing;
 
@@ -126,7 +134,8 @@ export function calculateHourlyResults(
     netMonth: netMonthlyPay,
     grossYear: annualPay,
     netYear: netAnnualPay,
-    annualTax: annualTax,
+    annualTax: totalAnnualTax,
+    medicareLevy: medicareLevy,
     hecsPerYear: hecsPerYear || undefined,
     hecsPerSwing: hecsPerSwing || undefined,
     cyclesPerYear: cyclesPerYear,
@@ -154,15 +163,24 @@ export function calculateSalaryResults(
   const annualTax = backpacker
     ? calculateBackpackerTax(annualPay)
     : calculateAustralianTax(annualPay);
+  let totalAnnualTax = 0;
+  let medicareLevy = 0;
+  if (backpacker) {
+    totalAnnualTax = annualTax;
+  } else {
+    medicareLevy = annualPay * 0.02;
+    totalAnnualTax = annualTax + medicareLevy;
+  }
+
   let hecsPerYear = 0;
   if (hecsDebt) {
     hecsPerYear = calculatehecsPerYear(annualPay);
   }
-  const netAnnualPay = annualPay - annualTax - hecsPerYear;
+  const netAnnualPay = annualPay - totalAnnualTax - hecsPerYear;
   const grossMonthlyPay = annualPay / MONTHS_PER_YEAR;
   const netMonthlyPay = netAnnualPay / MONTHS_PER_YEAR;
   const swingCyclePay = annualPay / cyclesPerYear;
-  const swingTax = annualTax / cyclesPerYear;
+  const swingTax = totalAnnualTax / cyclesPerYear;
   const hecsPerSwing = hecsPerYear / cyclesPerYear;
   const netPayPerSwingCycle = swingCyclePay - swingTax - hecsPerSwing;
   const hoursPerYear = selectedFifoSwing.daysOn * HOURS_PER_DAY * cyclesPerYear;
@@ -183,7 +201,8 @@ export function calculateSalaryResults(
     netMonth: netMonthlyPay,
     grossYear: annualPay,
     netYear: netAnnualPay,
-    annualTax: annualTax,
+    annualTax: totalAnnualTax,
+    medicareLevy: medicareLevy,
     hecsPerYear: hecsPerYear || undefined,
     hecsPerSwing: hecsPerSwing || undefined,
     cyclesPerYear: cyclesPerYear,

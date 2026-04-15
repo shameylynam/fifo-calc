@@ -30,16 +30,24 @@ interface FifoResultsChartProps {
 
 const chartConfig = {
   net: {
-    label: "net",
+    label: "Net",
     color: "var(--chart-1)",
   },
   tax: {
     label: "Tax",
     color: "var(--chart-2)",
   },
+  medicareLevy: {
+    label: "Medicare Levy",
+    color: "var(--chart-3)",
+  },
   hecs: {
     label: "HECS",
-    color: "var(--chart-3)",
+    color: "var(--chart-4)",
+  },
+  super: {
+    label: "Super",
+    color: "var(--chart-5)",
   },
 } satisfies ChartConfig;
 
@@ -49,25 +57,36 @@ export function PayStackedChart({ results1, results2 }: FifoResultsChartProps) {
     job: string;
     net: number;
     tax: number;
+    medicareLevy: number;
     hecs: number;
+    super: number;
   }>;
   if (results1) {
     chartData.push({
       job: "Job One",
       net: results1.netYear,
-      tax: results1.annualTax,
+      tax: results1.annualTax - (results1.medicareLevy || 0),
+      medicareLevy: results1.medicareLevy || 0,
       hecs: results1.hecsPerYear || 0,
+      super: results1.superPerYear || 0,
     });
   }
   if (results2) {
     chartData.push({
       job: "Job Two",
       net: results2.netYear,
-      tax: results2.annualTax,
+      tax: results2.annualTax - (results2.medicareLevy || 0),
+      medicareLevy: results2.medicareLevy || 0,
       hecs: results2.hecsPerYear || 0,
+      super: results2.superPerYear || 0,
     });
   }
   if (chartData.length === 0) return null;
+
+  // Determine if medicareLevy, hecs, or super are empty (all zero)
+  const showMedicare = chartData.some((d) => d.medicareLevy > 0);
+  const showHecs = chartData.some((d) => d.hecs > 0);
+  const showSuper = chartData.some((d) => d.super > 0);
 
   return (
     <Card>
@@ -96,16 +115,34 @@ export function PayStackedChart({ results1, results2 }: FifoResultsChartProps) {
               fill="var(--color-net)"
               radius={[0, 0, 0, 0]}
             />
+            {showSuper && (
+              <Bar
+                dataKey="super"
+                stackId="a"
+                fill="var(--color-super)"
+                radius={[0, 0, 0, 0]}
+              />
+            )}
+            {showMedicare && (
+              <Bar
+                dataKey="medicareLevy"
+                stackId="a"
+                fill="var(--color-medicareLevy)"
+                radius={[0, 0, 0, 0]}
+              />
+            )}
+            {showHecs && (
+              <Bar
+                dataKey="hecs"
+                stackId="a"
+                fill="var(--color-hecs)"
+                radius={[0, 0, 0, 0]}
+              />
+            )}
             <Bar
               dataKey="tax"
               stackId="a"
               fill="var(--color-tax)"
-              radius={[0, 0, 0, 0]}
-            />
-            <Bar
-              dataKey="hecs"
-              stackId="a"
-              fill="var(--color-hecs)"
               radius={[0, 4, 4, 0]}
             />
           </BarChart>

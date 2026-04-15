@@ -26,9 +26,5 @@ export function calculateAustralianTax(annualIncome: number): number {
     tax = 51667 + (annualIncome - 180000) * 0.45;
   }
 
-  // Add Medicare levy (2% of taxable income)
-  const medicareLevy = annualIncome * 0.02;
-  tax += medicareLevy;
-
   return tax;
 }
