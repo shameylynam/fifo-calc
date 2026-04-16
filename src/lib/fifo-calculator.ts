@@ -12,16 +12,6 @@ import {
   MONTHS_PER_YEAR,
 } from "@/constants/fifo.constants";
 
-// Helper function to create formatters
-function createFormatters() {
-  const currency = new Intl.NumberFormat("en-AU", {
-    style: "currency",
-    currency: "AUD",
-  });
-  const number = new Intl.NumberFormat("en-AU", { maximumFractionDigits: 2 });
-  return { currency, number };
-}
-
 // Helper for superannuation calculations
 function calculateSuperannuation(
   annualPay: number,
@@ -32,19 +22,18 @@ function calculateSuperannuation(
   let superPerYear = 0;
   let superPerMonth = 0;
   let superPerSwing = 0;
-  let superRateDisplay = "";
+  let superRateValue = 0;
   if (superannuation && superRate && superRate > 0) {
     superPerYear = annualPay * (superRate / 100);
     superPerMonth = superPerYear / MONTHS_PER_YEAR;
     superPerSwing = superPerYear / cyclesPerYear;
-    const { number } = createFormatters();
-    superRateDisplay = number.format(superRate) + "%";
+    superRateValue = superRate;
   }
   return {
     superPerYear,
     superPerMonth,
     superPerSwing,
-    superRateDisplay,
+    superRateValue,
   };
 }
 
@@ -57,22 +46,15 @@ function formatJobResults(
     superPerYear?: number;
     superPerMonth?: number;
     superPerSwing?: number;
-    superRateDisplay?: string;
+    superRateValue?: number;
   }
 ) {
-  const { currency } = createFormatters();
   return {
     ...base,
-    superPerYear: base.superPerYear
-      ? currency.format(base.superPerYear)
-      : undefined,
-    superPerMonth: base.superPerMonth
-      ? currency.format(base.superPerMonth)
-      : undefined,
-    superPerSwing: base.superPerSwing
-      ? currency.format(base.superPerSwing)
-      : undefined,
-    superRate: base.superRateDisplay || undefined,
+    superPerYear: base.superPerYear || undefined,
+    superPerMonth: base.superPerMonth || undefined,
+    superPerSwing: base.superPerSwing || undefined,
+    superRate: base.superRateValue || undefined,
   };
 }
 
@@ -105,7 +87,6 @@ export function calculateHourlyResults(
 
   const { cyclesPerMonth, cyclesPerYear, workingDaysPerMonth } =
     calculateSwingCycleMetrics(selectedFifoSwing);
-  const { currency, number } = createFormatters();
 
   const hoursPerDayForSuper =
     superHoursPerDay && superHoursPerDay > 0 ? superHoursPerDay : 8;
@@ -119,14 +100,22 @@ export function calculateHourlyResults(
   const annualTax = backpacker
     ? calculateBackpackerTax(annualPay)
     : calculateAustralianTax(annualPay);
+  let totalAnnualTax = 0;
+  let medicareLevy = 0;
+  if (backpacker) {
+    totalAnnualTax = annualTax;
+  } else {
+    medicareLevy = annualPay * 0.02;
+    totalAnnualTax = annualTax + medicareLevy;
+  }
   let hecsPerYear = 0;
   if (hecsDebt) {
     hecsPerYear = calculatehecsPerYear(annualPay);
   }
-  const netAnnualPay = annualPay - annualTax - hecsPerYear;
+  const netAnnualPay = annualPay - totalAnnualTax - hecsPerYear;
   const netMonthlyPay = netAnnualPay / MONTHS_PER_YEAR;
   const grossMonthlyPay = annualPay / MONTHS_PER_YEAR;
-  const swingTax = annualTax / cyclesPerYear;
+  const swingTax = totalAnnualTax / cyclesPerYear;
   const hecsPerSwing = hecsPerYear / cyclesPerYear;
   const netPayPerSwingCycle = swingCyclePay - swingTax - hecsPerSwing;
 
@@ -139,18 +128,19 @@ export function calculateHourlyResults(
 
   return formatJobResults({
     swing: selectedFifoSwing.name,
-    grossSwing: currency.format(swingCyclePay),
-    netSwing: currency.format(netPayPerSwingCycle),
-    grossMonth: currency.format(grossMonthlyPay),
-    netMonth: currency.format(netMonthlyPay),
-    grossYear: currency.format(annualPay),
-    netYear: currency.format(netAnnualPay),
-    annualTax: currency.format(annualTax),
-    hecsPerYear: hecsPerYear ? currency.format(hecsPerYear) : undefined,
-    hecsPerSwing: hecsPerSwing ? currency.format(hecsPerSwing) : undefined,
-    cyclesPerYear: number.format(cyclesPerYear),
-    cyclesPerMonth: number.format(cyclesPerMonth),
-    workingDaysPerMonth: number.format(workingDaysPerMonth),
+    grossSwing: swingCyclePay,
+    netSwing: netPayPerSwingCycle,
+    grossMonth: grossMonthlyPay,
+    netMonth: netMonthlyPay,
+    grossYear: annualPay,
+    netYear: netAnnualPay,
+    annualTax: totalAnnualTax,
+    medicareLevy: medicareLevy,
+    hecsPerYear: hecsPerYear || undefined,
+    hecsPerSwing: hecsPerSwing || undefined,
+    cyclesPerYear: cyclesPerYear,
+    cyclesPerMonth: cyclesPerMonth,
+    workingDaysPerMonth: workingDaysPerMonth,
     ...superData,
   });
 }
@@ -168,21 +158,29 @@ export function calculateSalaryResults(
 
   const { cyclesPerMonth, cyclesPerYear, workingDaysPerMonth } =
     calculateSwingCycleMetrics(selectedFifoSwing);
-  const { currency, number } = createFormatters();
 
   const annualPay = salary;
   const annualTax = backpacker
     ? calculateBackpackerTax(annualPay)
     : calculateAustralianTax(annualPay);
+  let totalAnnualTax = 0;
+  let medicareLevy = 0;
+  if (backpacker) {
+    totalAnnualTax = annualTax;
+  } else {
+    medicareLevy = annualPay * 0.02;
+    totalAnnualTax = annualTax + medicareLevy;
+  }
+
   let hecsPerYear = 0;
   if (hecsDebt) {
     hecsPerYear = calculatehecsPerYear(annualPay);
   }
-  const netAnnualPay = annualPay - annualTax - hecsPerYear;
+  const netAnnualPay = annualPay - totalAnnualTax - hecsPerYear;
   const grossMonthlyPay = annualPay / MONTHS_PER_YEAR;
   const netMonthlyPay = netAnnualPay / MONTHS_PER_YEAR;
   const swingCyclePay = annualPay / cyclesPerYear;
-  const swingTax = annualTax / cyclesPerYear;
+  const swingTax = totalAnnualTax / cyclesPerYear;
   const hecsPerSwing = hecsPerYear / cyclesPerYear;
   const netPayPerSwingCycle = swingCyclePay - swingTax - hecsPerSwing;
   const hoursPerYear = selectedFifoSwing.daysOn * HOURS_PER_DAY * cyclesPerYear;
@@ -197,19 +195,20 @@ export function calculateSalaryResults(
 
   return formatJobResults({
     swing: selectedFifoSwing.name,
-    grossSwing: currency.format(swingCyclePay),
-    netSwing: currency.format(netPayPerSwingCycle),
-    grossMonth: currency.format(grossMonthlyPay),
-    netMonth: currency.format(netMonthlyPay),
-    grossYear: currency.format(annualPay),
-    netYear: currency.format(netAnnualPay),
-    annualTax: currency.format(annualTax),
-    hecsPerYear: hecsPerYear ? currency.format(hecsPerYear) : undefined,
-    hecsPerSwing: hecsPerSwing ? currency.format(hecsPerSwing) : undefined,
-    cyclesPerYear: number.format(cyclesPerYear),
-    cyclesPerMonth: number.format(cyclesPerMonth),
-    workingDaysPerMonth: number.format(workingDaysPerMonth),
-    estimatedHourly: currency.format(estimatedHourly),
+    grossSwing: swingCyclePay,
+    netSwing: netPayPerSwingCycle,
+    grossMonth: grossMonthlyPay,
+    netMonth: netMonthlyPay,
+    grossYear: annualPay,
+    netYear: netAnnualPay,
+    annualTax: totalAnnualTax,
+    medicareLevy: medicareLevy,
+    hecsPerYear: hecsPerYear || undefined,
+    hecsPerSwing: hecsPerSwing || undefined,
+    cyclesPerYear: cyclesPerYear,
+    cyclesPerMonth: cyclesPerMonth,
+    workingDaysPerMonth: workingDaysPerMonth,
+    estimatedHourly: estimatedHourly,
     ...superData,
   });
 }

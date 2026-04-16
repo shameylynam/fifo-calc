@@ -11,7 +11,7 @@ export function calculateBackpackerTax(annualIncome: number): number {
   return tax;
 }
 
-// Australian tax calculation for 2024-2025 (excluding Medicare levy)
+// Australian tax calculation for 2024-2025 (including 2% Medicare levy)
 export function calculateAustralianTax(annualIncome: number): number {
   let tax = 0;
   if (annualIncome <= 18200) {
@@ -25,5 +25,6 @@ export function calculateAustralianTax(annualIncome: number): number {
   } else {
     tax = 51667 + (annualIncome - 180000) * 0.45;
   }
+
   return tax;
 }
