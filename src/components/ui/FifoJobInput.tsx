@@ -12,6 +12,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { fifoSwingOptions } from "@/constants/fifo.constants";
 
 interface FifoJobInputProps {
@@ -352,19 +359,26 @@ export function FifoJobInput({
           <FormItem>
             <FormLabel>Swings{label}</FormLabel>
             <FormControl>
-              <select
-                {...field}
+              <Select
+                name={field.name}
                 value={String(field.value ?? "")}
-                className="border rounded px-2 py-1 w-full"
+                onValueChange={field.onChange}
               >
-                {jobNumber === 2 && <option value="">Select swing</option>}
-                {fifoSwingOptions.map((swing: FifoSwing) => (
-                  <option key={swing.name} value={swing.name}>
-                    {swing.name}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger className="w-full rounded-xl">
+                  <SelectValue placeholder="Select swing" />
+                </SelectTrigger>
+                <SelectContent position="item-aligned">
+                  {fifoSwingOptions.map((swing: FifoSwing) => (
+                    <SelectItem key={swing.name} value={swing.name}>
+                      {swing.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </FormControl>
+            <FormDescription>
+              Choose the FIFO roster pattern for this job.
+            </FormDescription>
             <FormMessage />
           </FormItem>
         )}
