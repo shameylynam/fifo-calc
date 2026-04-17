@@ -12,6 +12,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { fifoSwingOptions } from "@/constants/fifo.constants";
 
 interface FifoJobInputProps {
@@ -94,52 +95,51 @@ export function FifoJobInput({
           </p>
         </div>
 
-        <div
+        <RadioGroup
           id={payTypeGroupId}
-          role="radiogroup"
           aria-label={`Job ${jobNumber} pay type`}
+          value={payType}
+          onValueChange={(value) => setPayType(value as PayType)}
           className="grid grid-cols-2 gap-2 rounded-xl border border-border bg-muted/30 p-1"
         >
-          <button
-            type="button"
-            role="radio"
-            aria-checked={payType === "hourly"}
-            onClick={() => setPayType("hourly")}
-            className={cn(
-              "rounded-lg px-4 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-              payType === "hourly"
-                ? "bg-background shadow-sm ring-1 ring-border"
-                : "text-muted-foreground hover:bg-background/70 hover:text-foreground",
-            )}
+          <label
+            htmlFor={`${payTypeGroupId}-hourly`}
+            className="block cursor-pointer"
           >
-            <span className="block text-sm font-medium text-foreground">
-              Hourly
-            </span>
-            <span className="mt-1 block text-xs text-muted-foreground">
-              Enter a pay rate per hour worked.
-            </span>
-          </button>
+            <RadioGroupItem
+              id={`${payTypeGroupId}-hourly`}
+              value="hourly"
+              className="peer sr-only"
+            />
+            <div className="rounded-lg px-4 py-3 text-left transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2 peer-data-[state=checked]:bg-background peer-data-[state=checked]:shadow-sm peer-data-[state=checked]:ring-1 peer-data-[state=checked]:ring-border hover:bg-background/70">
+              <span className="block text-sm font-medium text-foreground">
+                Hourly
+              </span>
+              <span className="mt-1 block text-xs text-muted-foreground">
+                Enter a pay rate per hour worked.
+              </span>
+            </div>
+          </label>
 
-          <button
-            type="button"
-            role="radio"
-            aria-checked={payType === "salary"}
-            onClick={() => setPayType("salary")}
-            className={cn(
-              "rounded-lg px-4 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-              payType === "salary"
-                ? "bg-background shadow-sm ring-1 ring-border"
-                : "text-muted-foreground hover:bg-background/70 hover:text-foreground",
-            )}
+          <label
+            htmlFor={`${payTypeGroupId}-salary`}
+            className="block cursor-pointer"
           >
-            <span className="block text-sm font-medium text-foreground">
-              Salary
-            </span>
-            <span className="mt-1 block text-xs text-muted-foreground">
-              Enter a gross annual salary figure.
-            </span>
-          </button>
-        </div>
+            <RadioGroupItem
+              id={`${payTypeGroupId}-salary`}
+              value="salary"
+              className="peer sr-only"
+            />
+            <div className="rounded-lg px-4 py-3 text-left transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2 peer-data-[state=checked]:bg-background peer-data-[state=checked]:shadow-sm peer-data-[state=checked]:ring-1 peer-data-[state=checked]:ring-border hover:bg-background/70">
+              <span className="block text-sm font-medium text-foreground">
+                Salary
+              </span>
+              <span className="mt-1 block text-xs text-muted-foreground">
+                Enter a gross annual salary figure.
+              </span>
+            </div>
+          </label>
+        </RadioGroup>
       </fieldset>
 
       {payType === "hourly" ? (
