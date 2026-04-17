@@ -14,8 +14,8 @@ export function PageContainer({
   return (
     <div
       className={clsx(
-        "grid grid-rows-[20px_1fr_20px] min-h-screen gap-8 pb-20 font-[family-name:var(--font-geist-sans)]",
-        className
+        "mx-auto grid min-h-screen w-full max-w-7xl grid-rows-[20px_1fr_20px] gap-8 px-4 pb-20 font-[family-name:var(--font-geist-sans)] sm:px-8 md:px-16 lg:px-32",
+        className,
       )}
     >
       {children}
