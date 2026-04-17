@@ -20,28 +20,28 @@ export function Header() {
           <NavigationMenuList>
             <NavigationMenuItem>
               <NavigationMenuLink
-                asChild
+                render={<Link href="/" />}
                 className={navigationMenuTriggerStyle()}
               >
-                <Link href="/">Home</Link>
+                Home
               </NavigationMenuLink>
             </NavigationMenuItem>
 
             <NavigationMenuItem>
               <NavigationMenuLink
-                asChild
+                render={<Link href="/about" />}
                 className={navigationMenuTriggerStyle()}
               >
-                <Link href="/about">About</Link>
+                About
               </NavigationMenuLink>
             </NavigationMenuItem>
 
             <NavigationMenuItem>
               <NavigationMenuLink
-                asChild
+                render={<Link href="/contact" />}
                 className={navigationMenuTriggerStyle()}
               >
-                <Link href="/contact">Contact Us</Link>
+                Contact Us
               </NavigationMenuLink>
             </NavigationMenuItem>
           </NavigationMenuList>
