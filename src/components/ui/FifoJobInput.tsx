@@ -1,6 +1,7 @@
 import type { PayType, FifoSwing } from "@/types/fifo.types";
 import type { Control } from "react-hook-form";
 import { useWatch } from "react-hook-form";
+import { cn } from "@/lib/utils";
 import type { FifoFormValues } from "@/schemas/fifo.schema";
 import {
   FormControl,
@@ -20,6 +21,55 @@ interface FifoJobInputProps {
   control: Control<FifoFormValues>;
 }
 
+interface ToggleCardProps {
+  checked: boolean;
+  title: string;
+  description: string;
+  onPressedChange: (checked: boolean) => void;
+}
+
+function ToggleCard({
+  checked,
+  title,
+  description,
+  onPressedChange,
+}: ToggleCardProps) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      onClick={() => onPressedChange(!checked)}
+      className={cn(
+        "flex w-full items-start justify-between gap-4 rounded-xl border px-4 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+        checked
+          ? "border-border bg-background shadow-sm ring-1 ring-border"
+          : "bg-muted/30 hover:bg-background/70",
+      )}
+    >
+      <div className="space-y-1">
+        <span className="block text-sm font-medium text-foreground">
+          {title}
+        </span>
+        <span className="block text-xs text-muted-foreground">
+          {description}
+        </span>
+      </div>
+      <span
+        aria-hidden="true"
+        className={cn(
+          "inline-flex min-w-[3.25rem] items-center justify-center rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em]",
+          checked
+            ? "bg-foreground text-background"
+            : "bg-muted text-muted-foreground",
+        )}
+      >
+        {checked ? "On" : "Off"}
+      </span>
+    </button>
+  );
+}
+
 export function FifoJobInput({
   jobNumber,
   payType,
@@ -28,31 +78,69 @@ export function FifoJobInput({
 }: FifoJobInputProps) {
   const suffix = jobNumber === 2 ? "Two" : "";
   const label = jobNumber === 2 ? " (Job 2)" : "";
+  const payTypeGroupId = `job-${jobNumber}-pay-type`;
 
   const superEnabled = useWatch({ control, name: `superannuation${suffix}` });
   return (
     <div className="flex-1 flex flex-col gap-6">
-      <div className="flex gap-4 mb-4">
-        <div className="flex flex-col">
-          <span className="font-semibold mb-1">Job {jobNumber} Pay Type</span>
-          <label className="flex items-center gap-2">
-            <input
-              type="radio"
-              checked={payType === "hourly"}
-              onChange={() => setPayType("hourly")}
-            />
-            Hourly
-          </label>
-          <label className="flex items-center gap-2">
-            <input
-              type="radio"
-              checked={payType === "salary"}
-              onChange={() => setPayType("salary")}
-            />
-            Salary
-          </label>
+      <fieldset className="space-y-3">
+        <div className="space-y-1">
+          <legend className="text-sm font-semibold tracking-tight">
+            Job {jobNumber} Pay Type
+          </legend>
+          <p className="text-sm text-muted-foreground">
+            Choose whether this role is entered as an hourly rate or annual
+            salary.
+          </p>
         </div>
-      </div>
+
+        <div
+          id={payTypeGroupId}
+          role="radiogroup"
+          aria-label={`Job ${jobNumber} pay type`}
+          className="grid grid-cols-2 gap-2 rounded-xl border border-border bg-muted/30 p-1"
+        >
+          <button
+            type="button"
+            role="radio"
+            aria-checked={payType === "hourly"}
+            onClick={() => setPayType("hourly")}
+            className={cn(
+              "rounded-lg px-4 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+              payType === "hourly"
+                ? "bg-background shadow-sm ring-1 ring-border"
+                : "text-muted-foreground hover:bg-background/70 hover:text-foreground",
+            )}
+          >
+            <span className="block text-sm font-medium text-foreground">
+              Hourly
+            </span>
+            <span className="mt-1 block text-xs text-muted-foreground">
+              Enter a pay rate per hour worked.
+            </span>
+          </button>
+
+          <button
+            type="button"
+            role="radio"
+            aria-checked={payType === "salary"}
+            onClick={() => setPayType("salary")}
+            className={cn(
+              "rounded-lg px-4 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+              payType === "salary"
+                ? "bg-background shadow-sm ring-1 ring-border"
+                : "text-muted-foreground hover:bg-background/70 hover:text-foreground",
+            )}
+          >
+            <span className="block text-sm font-medium text-foreground">
+              Salary
+            </span>
+            <span className="mt-1 block text-xs text-muted-foreground">
+              Enter a gross annual salary figure.
+            </span>
+          </button>
+        </div>
+      </fieldset>
 
       {payType === "hourly" ? (
         <FormField
@@ -72,7 +160,7 @@ export function FifoJobInput({
                   }
                   onChange={(e) =>
                     field.onChange(
-                      e.target.value === "" ? 0 : Number(e.target.value)
+                      e.target.value === "" ? 0 : Number(e.target.value),
                     )
                   }
                   onBlur={field.onBlur}
@@ -106,7 +194,7 @@ export function FifoJobInput({
                   }
                   onChange={(e) =>
                     field.onChange(
-                      e.target.value === "" ? 0 : Number(e.target.value)
+                      e.target.value === "" ? 0 : Number(e.target.value),
                     )
                   }
                   onBlur={field.onBlur}
@@ -129,18 +217,15 @@ export function FifoJobInput({
         control={control}
         name={`superannuation${suffix}` as keyof FifoFormValues}
         render={({ field }) => (
-          <FormItem>
+          <FormItem className="space-y-3">
             <FormLabel>Superannuation{label}</FormLabel>
             <FormControl>
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={Boolean(field.value)}
-                  onChange={(e) => field.onChange(e.target.checked)}
-                  className="mr-2"
-                />
-                <span>Include superannuation</span>
-              </div>
+              <ToggleCard
+                checked={Boolean(field.value)}
+                onPressedChange={field.onChange}
+                title="Include superannuation"
+                description="Factor employer super into the annual and monthly results."
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -167,7 +252,7 @@ export function FifoJobInput({
                     }
                     onChange={(e) =>
                       field.onChange(
-                        e.target.value === "" ? 0 : Number(e.target.value)
+                        e.target.value === "" ? 0 : Number(e.target.value),
                       )
                     }
                     onBlur={field.onBlur}
@@ -226,18 +311,15 @@ export function FifoJobInput({
         control={control}
         name={`backpacker${suffix}` as keyof FifoFormValues}
         render={({ field }) => (
-          <FormItem>
+          <FormItem className="space-y-3">
             <FormLabel>Backpacker{label}</FormLabel>
             <FormControl>
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={Boolean(field.value)}
-                  onChange={(e) => field.onChange(e.target.checked)}
-                  className="mr-2"
-                />
-                <span>Apply backpacker tax rates</span>
-              </div>
+              <ToggleCard
+                checked={Boolean(field.value)}
+                onPressedChange={field.onChange}
+                title="Apply backpacker tax rates"
+                description="Use backpacker tax brackets instead of standard Australian resident rates."
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -248,18 +330,15 @@ export function FifoJobInput({
         control={control}
         name={`hecsDebt${suffix}` as keyof FifoFormValues}
         render={({ field }) => (
-          <FormItem>
+          <FormItem className="space-y-3">
             <FormLabel>HECS-HELP Debt{label}</FormLabel>
             <FormControl>
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={Boolean(field.value)}
-                  onChange={(e) => field.onChange(e.target.checked)}
-                  className="mr-2"
-                />
-                <span>Apply HECS-HELP repayments</span>
-              </div>
+              <ToggleCard
+                checked={Boolean(field.value)}
+                onPressedChange={field.onChange}
+                title="Apply HECS-HELP repayments"
+                description="Include compulsory HELP repayments in the estimated take-home pay."
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
