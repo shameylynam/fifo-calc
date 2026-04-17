@@ -87,8 +87,8 @@ export function FifoJobInput({
   const suffix = jobNumber === 2 ? "Two" : "";
   const label = jobNumber === 2 ? " (Job 2)" : "";
   const payTypeGroupId = `job-${jobNumber}-pay-type`;
-
   const superEnabled = useWatch({ control, name: `superannuation${suffix}` });
+
   return (
     <div className="flex-1 flex flex-col gap-6">
       <fieldset className="space-y-3">
@@ -111,14 +111,14 @@ export function FifoJobInput({
         >
           <label
             htmlFor={`${payTypeGroupId}-hourly`}
-            className="block cursor-pointer"
+            className="relative block cursor-pointer"
           >
             <RadioGroupItem
               id={`${payTypeGroupId}-hourly`}
               value="hourly"
-              className="peer sr-only"
+              className="peer absolute top-4 right-4 z-10"
             />
-            <div className="rounded-lg px-4 py-3 text-left transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2 peer-data-[state=checked]:bg-background peer-data-[state=checked]:shadow-sm peer-data-[state=checked]:ring-1 peer-data-[state=checked]:ring-border hover:bg-background/70">
+            <div className="relative rounded-lg px-4 py-3 pr-12 text-left transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2 peer-data-[checked]:bg-background peer-data-[checked]:shadow-sm peer-data-[checked]:ring-1 peer-data-[checked]:ring-border hover:bg-background/70">
               <span className="block text-sm font-medium text-foreground">
                 Hourly
               </span>
@@ -130,14 +130,14 @@ export function FifoJobInput({
 
           <label
             htmlFor={`${payTypeGroupId}-salary`}
-            className="block cursor-pointer"
+            className="relative block cursor-pointer"
           >
             <RadioGroupItem
               id={`${payTypeGroupId}-salary`}
               value="salary"
-              className="peer sr-only"
+              className="peer absolute top-4 right-4 z-10"
             />
-            <div className="rounded-lg px-4 py-3 text-left transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2 peer-data-[state=checked]:bg-background peer-data-[state=checked]:shadow-sm peer-data-[state=checked]:ring-1 peer-data-[state=checked]:ring-border hover:bg-background/70">
+            <div className="relative rounded-lg px-4 py-3 pr-12 text-left transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2 peer-data-[checked]:bg-background peer-data-[checked]:shadow-sm peer-data-[checked]:ring-1 peer-data-[checked]:ring-border hover:bg-background/70">
               <span className="block text-sm font-medium text-foreground">
                 Salary
               </span>
@@ -219,7 +219,6 @@ export function FifoJobInput({
         />
       )}
 
-      {/* Superannuation Toggle and Rate */}
       <FormField
         control={control}
         name={`superannuation${suffix}` as keyof FifoFormValues}
@@ -238,6 +237,7 @@ export function FifoJobInput({
           </FormItem>
         )}
       />
+
       {superEnabled ? (
         <>
           <FormField
@@ -274,6 +274,7 @@ export function FifoJobInput({
               </FormItem>
             )}
           />
+
           {payType === "hourly" && (
             <FormField
               control={control}
@@ -367,7 +368,7 @@ export function FifoJobInput({
                 <SelectTrigger className="w-full rounded-xl">
                   <SelectValue placeholder="Select swing" />
                 </SelectTrigger>
-                <SelectContent position="item-aligned">
+                <SelectContent>
                   {fifoSwingOptions.map((swing: FifoSwing) => (
                     <SelectItem key={swing.name} value={swing.name}>
                       {swing.name}

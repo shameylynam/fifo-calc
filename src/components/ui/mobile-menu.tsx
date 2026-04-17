@@ -39,20 +39,22 @@ const MenuItemComponent: React.FC<{ item: MenuItem; depth?: number }> = ({
   if (item.submenu) {
     return (
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-        <CollapsibleTrigger asChild>
-          <button
-            className={cn(
-              "flex w-full items-center justify-between py-2 text-lg font-medium transition-colors hover:text-primary",
-              depth > 0 && "pl-4",
-            )}
-          >
-            {item.title}
-            {isOpen ? (
-              <ChevronDown className="h-4 w-4" />
-            ) : (
-              <ChevronRight className="h-4 w-4" />
-            )}
-          </button>
+        <CollapsibleTrigger
+          render={
+            <button
+              className={cn(
+                "flex w-full items-center justify-between py-2 text-lg font-medium transition-colors hover:text-primary",
+                depth > 0 && "pl-4",
+              )}
+            />
+          }
+        >
+          {item.title}
+          {isOpen ? (
+            <ChevronDown className="h-4 w-4" />
+          ) : (
+            <ChevronRight className="h-4 w-4" />
+          )}
         </CollapsibleTrigger>
         <CollapsibleContent>
           {item.submenu.map((subItem) => (
@@ -86,11 +88,11 @@ export default function HamburgerMenu() {
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="md:hidden">
-          <Menu className="h-5 w-5" />
-          <span className="sr-only">Toggle menu</span>
-        </Button>
+      <SheetTrigger
+        render={<Button variant="ghost" size="icon" className="md:hidden" />}
+      >
+        <Menu className="h-5 w-5" />
+        <span className="sr-only">Toggle menu</span>
       </SheetTrigger>
       <SheetContent side="left" className="w-[240px] sm:w-[300px]">
         <SheetHeader>
