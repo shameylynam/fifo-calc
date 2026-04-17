@@ -1,12 +1,9 @@
 import { FifoCalculator } from "@/components/ui/forms/FifoCalculator";
-import { PageContainer } from "@/components/ui/PageContainer";
 
 export default function Home() {
   return (
-    <PageContainer>
-      <main className="w-full flex flex-col gap-8 row-start-2 items-center justify-center min-h-[60vh]">
-        <FifoCalculator />
-      </main>
-    </PageContainer>
+    <main className="row-start-2 flex min-h-[60vh] w-full flex-col items-center justify-center gap-8">
+      <FifoCalculator />
+    </main>
   );
 }
