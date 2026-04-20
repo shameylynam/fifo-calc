@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Figtree } from "next/font/google";
 import "./globals.css";
+import { Footer } from "@/components/ui/Footer";
 import { Header } from "@/components/ui/Header";
 import { PageContainer } from "@/components/ui/PageContainer";
 import { cn } from "@/lib/utils";
 
-const figtree = Figtree({subsets:['latin'],variable:'--font-sans'});
+const figtree = Figtree({ subsets: ["latin"], variable: "--font-sans" });
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,12 +31,15 @@ export default function RootLayout({
   return (
     <html lang="en" className={cn("font-sans", figtree.variable)}>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-background text-foreground antialiased`}
       >
-        <Header />
-        <PageContainer>
-          <main className="w-full py-8">{children}</main>
-        </PageContainer>
+        <div className="flex min-h-screen flex-col">
+          <Header />
+          <PageContainer className="flex-1 py-8">
+            <div className="w-full">{children}</div>
+          </PageContainer>
+          <Footer />
+        </div>
       </body>
     </html>
   );

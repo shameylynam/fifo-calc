@@ -38,7 +38,7 @@ export function Header() {
 
             <NavigationMenuItem>
               <NavigationMenuLink
-                render={<Link href="/contact" />}
+                render={<Link href="/contact-us" />}
                 className={navigationMenuTriggerStyle()}
               >
                 Contact Us
