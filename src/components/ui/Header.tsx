@@ -29,10 +29,10 @@ export function Header() {
 
             <NavigationMenuItem>
               <NavigationMenuLink
-                render={<Link href="/about" />}
+                render={<Link href="/how-it-works" />}
                 className={navigationMenuTriggerStyle()}
               >
-                About
+                How It Works
               </NavigationMenuLink>
             </NavigationMenuItem>
 
