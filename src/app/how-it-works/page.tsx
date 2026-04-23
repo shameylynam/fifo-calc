@@ -233,7 +233,7 @@ export default function HowItWorks() {
             super turned on
           </h2>
           <p className="max-w-3xl text-base leading-7 text-muted-foreground">
-            This walkthrough follows the same order as the app's calculation:
+            This walkthrough follows the same order as the app&apos;s calculation:
             hourly pay to swing pay, swing pay to annual pay, tax and Medicare,
             then separate superannuation.
           </p>
