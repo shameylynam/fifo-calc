@@ -3,7 +3,6 @@ import Link from "next/link";
 const primaryLinks = [
   { href: "/", label: "Home" },
   { href: "/how-it-works", label: "How It Works" },
-  { href: "/contact-us", label: "Contact Us" },
 ];
 
 const legalLinks = [
