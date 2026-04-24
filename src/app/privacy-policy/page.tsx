@@ -98,7 +98,8 @@ export default function PrivacyPolicy() {
       <h2>Contact</h2>
       <p>
         If you have any questions about this privacy policy, you can reach us
-        via the contact information listed on the site.
+        at{" "}
+        <a href="mailto:info@fifocalculator.net">info@fifocalculator.net</a>.
       </p>
     </TextPageLayout>
   );
