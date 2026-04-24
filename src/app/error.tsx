@@ -1,15 +1,20 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export default function Error({
+  error,
   reset,
 }: {
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  useEffect(() => {
+    console.error(error);
+  }, [error]);
   return (
     <main className="flex min-h-[60vh] w-full flex-col items-center justify-center gap-6 text-center">
       <p className="text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground">
