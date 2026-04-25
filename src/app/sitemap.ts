@@ -1,6 +1,8 @@
 import type { MetadataRoute } from "next";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://fifocalc.com.au";
+const siteUrl = (
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://fifocalculator.net"
+).replace(/\/$/, "");
 const lastModified = new Date(
   process.env.BUILD_DATE ?? "2025-01-01T00:00:00.000Z",
 );

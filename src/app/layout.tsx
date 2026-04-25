@@ -18,7 +18,9 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://fifocalc.com.au";
+const siteUrl = (
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://fifocalculator.net"
+).replace(/\/$/, "");
 
 export const metadata: Metadata = {
   title: "FIFO Pay Calculator",
