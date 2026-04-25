@@ -1,3 +1,4 @@
+@import "@fontsource-variable/figtree";
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -50,6 +51,7 @@
 
 :root {
   --radius: 0.625rem;
+  --font-sans: 'Figtree Variable', ui-sans-serif, system-ui, sans-serif;
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.147 0.004 49.3);
   --popover: oklch(1 0 0);
