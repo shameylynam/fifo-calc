@@ -59,6 +59,6 @@ A to-do list of pages and components needed before putting this project live.
 
 ## Accessibility & UX
 
-- [ ] Replace native `<select>` in `FifoJobInput.tsx` with the shadcn/ui `<Select>` component for consistent styling and accessibility.
-- [ ] Replace native `<input type="radio">` / `<input type="checkbox">` elements in `FifoJobInput.tsx` with the shadcn/ui `<RadioGroup>` and `<Checkbox>` components.
-- [ ] Add a visible page `<h1>` heading to the home page so the purpose of the tool is immediately clear to screen readers and visitors.
+- [x] Replace native `<select>` in `FifoJobInput.tsx` with the shadcn/ui `<Select>` component for consistent styling and accessibility.
+- [x] Replace native `<input type="radio">` / `<input type="checkbox">` elements in `FifoJobInput.tsx` with the shadcn/ui `<RadioGroup>` and `<Checkbox>` components.
+- [x] Add a visible page `<h1>` heading to the home page so the purpose of the tool is immediately clear to screen readers and visitors.
