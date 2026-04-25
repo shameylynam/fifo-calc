@@ -1,7 +1,5 @@
 import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
-  output: "export", // Enables static export for AWS Amplify hosting
-};
+const nextConfig: NextConfig = {};
 
 export default nextConfig;

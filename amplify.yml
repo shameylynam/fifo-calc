@@ -10,7 +10,7 @@ frontend:
         - export BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%S.000Z")
         - npm run build
   artifacts:
-    baseDirectory: out
+    baseDirectory: .next
     files:
       - '**/*'
   cache:
