@@ -2,8 +2,8 @@ import { TextPageLayout } from "@/components/ui/TextPageLayout";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Terms of Use – FIFO Calc",
-  description: "Terms of use for FIFO Calc.",
+  title: "Terms of Use – FIFO Calculator",
+  description: "Terms of use for FIFO Calculator.",
 };
 
 export default function TermsOfUse() {
@@ -15,14 +15,14 @@ export default function TermsOfUse() {
 
       <h2>Acceptance of terms</h2>
       <p>
-        By accessing or using FIFO Calc (&ldquo;the site&rdquo;,
+        By accessing or using FIFO Calculator (&ldquo;the site&rdquo;,
         &ldquo;the calculator&rdquo;), you agree to be bound by these Terms of
         Use. If you do not agree, please do not use the site.
       </p>
 
       <h2>Description of service</h2>
       <p>
-        FIFO Calc is a free, browser-based tool that provides estimated
+        FIFO Calculator is a free, browser-based tool that provides estimated
         after-tax pay calculations for FIFO workers in Australia. All
         calculations are performed locally in your browser and are intended for
         informational and illustrative purposes only.
@@ -30,7 +30,7 @@ export default function TermsOfUse() {
 
       <h2>Not financial or tax advice</h2>
       <p>
-        The results provided by FIFO Calc are estimates only and do not
+        The results provided by FIFO Calculator are estimates only and do not
         constitute financial, tax, legal, or professional advice. Actual pay may
         differ due to allowances, bonuses, employer-specific rules, salary
         sacrifice arrangements, PAYG withholding variations, and other factors.
@@ -40,7 +40,7 @@ export default function TermsOfUse() {
 
       <h2>No data storage</h2>
       <p>
-        FIFO Calc does not collect or store any data you enter. All inputs are
+        FIFO Calculator does not collect or store any data you enter. All inputs are
         processed entirely within your browser and are not transmitted to any
         server.
       </p>
@@ -57,14 +57,14 @@ export default function TermsOfUse() {
       <h2>Intellectual property</h2>
       <p>
         All content on this site, including text, code, and design, is owned by
-        or licensed to FIFO Calc. You may not reproduce, distribute, or create
+        or licensed to FIFO Calculator. You may not reproduce, distribute, or create
         derivative works without prior written permission, except as permitted
         by applicable law.
       </p>
 
       <h2>Limitation of liability</h2>
       <p>
-        To the maximum extent permitted by law, FIFO Calc and its operators
+        To the maximum extent permitted by law, FIFO Calculator and its operators
         will not be liable for any direct, indirect, incidental, or
         consequential loss or damage arising from your use of, or reliance on,
         this site or its results.
