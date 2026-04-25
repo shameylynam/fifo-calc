@@ -13,7 +13,7 @@ export function Header() {
     <header className="border-b bg-background">
       <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-4 sm:px-8 md:px-16 lg:px-32">
         <Link href="/" className="text-lg font-semibold tracking-tight">
-          FIFO Calc
+          FIFO Calculator
         </Link>
         <HamburgerMenu />
         <NavigationMenu className="hidden md:flex">
