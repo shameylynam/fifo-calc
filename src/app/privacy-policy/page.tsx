@@ -2,8 +2,8 @@ import { TextPageLayout } from "@/components/ui/TextPageLayout";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy – FIFO Calc",
-  description: "Privacy policy for FIFO Calc.",
+  title: "Privacy Policy – FIFO Calculator",
+  description: "Privacy policy for FIFO Calculator.",
 };
 
 export default function PrivacyPolicy() {
@@ -15,7 +15,7 @@ export default function PrivacyPolicy() {
 
       <h2>Overview</h2>
       <p>
-        FIFO Calc (&ldquo;we&rdquo;, &ldquo;us&rdquo;, &ldquo;our&rdquo;) is a
+        FIFO Calculator (&ldquo;we&rdquo;, &ldquo;us&rdquo;, &ldquo;our&rdquo;) is a
         free, browser-based pay estimator for FIFO workers in Australia. We are
         committed to protecting your privacy. This policy explains what
         information we collect (if any) and how we use it.
@@ -23,7 +23,7 @@ export default function PrivacyPolicy() {
 
       <h2>No personal data collected</h2>
       <p>
-        FIFO Calc does not collect, store, or transmit any personal information.
+        FIFO Calculator does not collect, store, or transmit any personal information.
         All calculations run entirely in your browser. No pay figures, tax
         settings, or roster details you enter are sent to any server or saved
         anywhere.
@@ -78,7 +78,7 @@ export default function PrivacyPolicy() {
 
       <h2>Cookies and tracking</h2>
       <p>
-        FIFO Calc does not use cookies, tracking pixels, analytics scripts, or
+        FIFO Calculator does not use cookies, tracking pixels, analytics scripts, or
         any third-party tracking technology.
       </p>
 
