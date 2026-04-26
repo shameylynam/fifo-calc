@@ -48,6 +48,17 @@ All calculations run entirely in the browser — no data is sent to a server.
 
 ---
 
+## Roadmap
+
+Features planned for future releases:
+
+- [ ] **Custom roster** — Allow users to define their own on/off swing patterns beyond the built-in 8/6, 2/1, and 2/2 presets.
+- [ ] **AI job comparison** — AI-powered overview to help compare two or more job offers side-by-side across pay, tax, and super.
+- [ ] **Overtime compensation** — Support for overtime rates (e.g. time-and-a-half, double time) applied to hours worked beyond a standard shift.
+- [ ] **Public holiday rates** — Apply configurable public holiday pay multipliers to relevant days within a swing.
+
+---
+
 ## Local development
 
 ```bash
