@@ -43,7 +43,7 @@ All calculations run entirely in the browser — no data is sent to a server.
 | Charts | [Recharts](https://recharts.org) |
 | Forms & validation | [React Hook Form](https://react-hook-form.com) + [Zod](https://zod.dev) |
 | Icons | [HugeIcons](https://hugeicons.com) + [Lucide React](https://lucide.dev) |
-| Hosting | [Azure Static Web Apps](https://azure.microsoft.com/products/app-service/static) |
+| Hosting | [Azure Static Web Apps](https://azure.microsoft.com/products/app-service/static) · [AWS Amplify](https://aws.amazon.com/amplify/) |
 | CI/CD | GitHub Actions (`azure-static-web-apps-deploy`) |
 
 ---
