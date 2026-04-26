@@ -2,7 +2,7 @@
 
 A free, browser-based tool that estimates take-home pay, income tax, superannuation, and HECS-HELP repayments for Fly-In Fly-Out (FIFO) workers in Australia.
 
-**Live site:** https://orange-bush-0ea315f00.azurestaticapps.net
+**Live site:** https://fifocalculator.net
 
 ---
 
