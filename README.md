@@ -44,7 +44,6 @@ All calculations run entirely in the browser — no data is sent to a server.
 | Forms & validation | [React Hook Form](https://react-hook-form.com) + [Zod](https://zod.dev) |
 | Icons | [HugeIcons](https://hugeicons.com) + [Lucide React](https://lucide.dev) |
 | Hosting | [AWS Amplify](https://aws.amazon.com/amplify/) |
-| CI/CD | GitHub Actions |
 
 ---
 
