@@ -15,7 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-import { InfoTooltip } from "@/components/ui/InfoTooltip";
+import { InfoTooltip } from "@/components/blocks/InfoTooltip";
 
 interface FifoResultsTableProps {
   results: JobResults;

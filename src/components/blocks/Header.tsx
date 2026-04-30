@@ -6,7 +6,7 @@ import {
   NavigationMenuList,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
-import HamburgerMenu from "./mobile-menu";
+import MobileMenu from "./MobileMenu";
 
 export function Header() {
   return (
@@ -15,7 +15,7 @@ export function Header() {
         <Link href="/" className="text-lg font-semibold tracking-tight">
           FIFO Calculator
         </Link>
-        <HamburgerMenu />
+        <MobileMenu />
         <NavigationMenu className="hidden md:flex">
           <NavigationMenuList>
             <NavigationMenuItem>
@@ -35,7 +35,6 @@ export function Header() {
                 How It Works
               </NavigationMenuLink>
             </NavigationMenuItem>
-
           </NavigationMenuList>
         </NavigationMenu>
       </div>

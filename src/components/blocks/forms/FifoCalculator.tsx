@@ -5,11 +5,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { cn } from "@/lib/utils";
 import { Form } from "@/components/ui/form";
-import { PayStackedChart } from "@/components/ui/payStackedChart";
+import { PayStackedChart } from "@/components/blocks/PayStackedChart";
 import { Button } from "@/components/ui/button";
-import { FifoJobInput } from "@/components/ui/FifoJobInput";
-import { FifoComparisonTable } from "@/components/ui/FifoComparisonTable";
-import { FifoResultsTable } from "@/components/ui/FifoResultsTable";
+import { FifoJobInput } from "@/components/blocks/FifoJobInput";
+import { FifoComparisonTable } from "@/components/blocks/FifoComparisonTable";
+import { FifoResultsTable } from "@/components/blocks/FifoResultsTable";
 import type { JobResults, PayType } from "@/types/fifo.types";
 import {
   fifoFormSchema,

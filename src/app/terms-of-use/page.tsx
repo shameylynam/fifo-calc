@@ -1,4 +1,4 @@
-import { TextPageLayout } from "@/components/ui/TextPageLayout";
+import { TextPageLayout } from "@/components/blocks/TextPageLayout";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -40,9 +40,9 @@ export default function TermsOfUse() {
 
       <h2>No data storage</h2>
       <p>
-        FIFO Calculator does not collect or store any data you enter. All inputs are
-        processed entirely within your browser and are not transmitted to any
-        server.
+        FIFO Calculator does not collect or store any data you enter. All inputs
+        are processed entirely within your browser and are not transmitted to
+        any server.
       </p>
 
       <h2>Accuracy and availability</h2>
@@ -57,15 +57,15 @@ export default function TermsOfUse() {
       <h2>Intellectual property</h2>
       <p>
         All content on this site, including text, code, and design, is owned by
-        or licensed to FIFO Calculator. You may not reproduce, distribute, or create
-        derivative works without prior written permission, except as permitted
-        by applicable law.
+        or licensed to FIFO Calculator. You may not reproduce, distribute, or
+        create derivative works without prior written permission, except as
+        permitted by applicable law.
       </p>
 
       <h2>Limitation of liability</h2>
       <p>
-        To the maximum extent permitted by law, FIFO Calculator and its operators
-        will not be liable for any direct, indirect, incidental, or
+        To the maximum extent permitted by law, FIFO Calculator and its
+        operators will not be liable for any direct, indirect, incidental, or
         consequential loss or damage arising from your use of, or reliance on,
         this site or its results.
       </p>
