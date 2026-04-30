@@ -56,7 +56,8 @@ const FifoCalculator = React.forwardRef<
     if (payTypeJob1 === "hourly") {
       job1Results = calculateHourlyResults(
         values.hourlypay,
-        values.swings,
+        values.swingDaysOn,
+        values.swingDaysOff,
         values.backpacker ?? false,
         values.superannuation ?? false,
         values.superRate ?? 12,
@@ -66,7 +67,8 @@ const FifoCalculator = React.forwardRef<
     } else {
       job1Results = calculateSalaryResults(
         values.salary,
-        values.swings,
+        values.swingDaysOn,
+        values.swingDaysOff,
         values.backpacker ?? false,
         values.superannuation ?? false,
         values.superRate ?? 12,
@@ -78,7 +80,8 @@ const FifoCalculator = React.forwardRef<
       if (payTypeJob2 === "hourly") {
         job2Results = calculateHourlyResults(
           values.hourlypayTwo,
-          values.swingsTwo,
+          values.swingDaysOnTwo,
+          values.swingDaysOffTwo,
           values.backpackerTwo ?? false,
           values.superannuationTwo ?? false,
           values.superRateTwo ?? 12,
@@ -88,7 +91,8 @@ const FifoCalculator = React.forwardRef<
       } else {
         job2Results = calculateSalaryResults(
           values.salaryTwo,
-          values.swingsTwo,
+          values.swingDaysOnTwo,
+          values.swingDaysOffTwo,
           values.backpackerTwo ?? false,
           values.superannuationTwo ?? false,
           values.superRateTwo ?? 12,
