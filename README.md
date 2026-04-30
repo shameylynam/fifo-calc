@@ -15,7 +15,7 @@ FIFO workers are paid on rotating rosters rather than standard weekly hours, whi
 - Employer superannuation (configurable rate and hours per day)
 - HECS-HELP repayment estimates
 
-Supported rosters: **8/6**, **2/1** (2 weeks on / 1 week off), and **2/2**.
+Supported rosters: **8/6**, **2/1**, **2/2** or a custom roster.
 
 ---
 
