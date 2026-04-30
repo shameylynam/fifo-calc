@@ -1,6 +1,7 @@
-import type { PayType, FifoSwing } from "@/types/fifo.types";
+import { useState } from "react";
+import type { PayType } from "@/types/fifo.types";
 import type { Control } from "react-hook-form";
-import { useWatch } from "react-hook-form";
+import { useWatch, useFormContext } from "react-hook-form";
 import { cn } from "@/lib/utils";
 import type { FifoFormValues } from "@/schemas/fifo.schema";
 import {
@@ -87,7 +88,21 @@ export function FifoJobInput({
   const suffix = jobNumber === 2 ? "Two" : "";
   const label = jobNumber === 2 ? " (Job 2)" : "";
   const payTypeGroupId = `job-${jobNumber}-pay-type`;
+  const { setValue } = useFormContext<FifoFormValues>();
+  const [showCustom, setShowCustom] = useState(false);
   const superEnabled = useWatch({ control, name: `superannuation${suffix}` });
+  const currentDaysOn = useWatch({
+    control,
+    name: `swingDaysOn${suffix}` as keyof FifoFormValues,
+  });
+  const currentDaysOff = useWatch({
+    control,
+    name: `swingDaysOff${suffix}` as keyof FifoFormValues,
+  });
+  const presetValue =
+    fifoSwingOptions.find(
+      (s) => s.daysOn === currentDaysOn && s.daysOff === currentDaysOff,
+    )?.name ?? "";
 
   return (
     <div className="flex-1 flex flex-col gap-6">
@@ -353,37 +368,116 @@ export function FifoJobInput({
         )}
       />
 
-      <FormField
-        control={control}
-        name={`swings${suffix}` as keyof FifoFormValues}
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Swings{label}</FormLabel>
-            <FormControl>
-              <Select
-                name={field.name}
-                value={String(field.value ?? "")}
-                onValueChange={field.onChange}
-              >
-                <SelectTrigger className="w-full rounded-xl">
-                  <SelectValue placeholder="Select swing" />
-                </SelectTrigger>
-                <SelectContent>
-                  {fifoSwingOptions.map((swing: FifoSwing) => (
-                    <SelectItem key={swing.name} value={swing.name}>
-                      {swing.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </FormControl>
-            <FormDescription>
-              Choose the FIFO roster pattern for this job.
-            </FormDescription>
-            <FormMessage />
-          </FormItem>
+      <div className="space-y-3">
+        <div className="space-y-1">
+          <p className="text-sm font-semibold tracking-tight">
+            Swing Cycle{label}
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Select a preset or enter custom days on / days off.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Select
+            value={presetValue}
+            onValueChange={(val) => {
+              const preset = fifoSwingOptions.find((s) => s.name === val);
+              if (!preset) return;
+              if (suffix === "Two") {
+                setValue("swingDaysOnTwo", preset.daysOn);
+                setValue("swingDaysOffTwo", preset.daysOff);
+              } else {
+                setValue("swingDaysOn", preset.daysOn);
+                setValue("swingDaysOff", preset.daysOff);
+              }
+            }}
+          >
+            <SelectTrigger className="flex-1 rounded-xl">
+              <SelectValue placeholder="Select a preset…" />
+            </SelectTrigger>
+            <SelectContent>
+              {fifoSwingOptions.map((swing) => (
+                <SelectItem key={swing.name} value={swing.name}>
+                  {swing.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <button
+            type="button"
+            onClick={() => setShowCustom((prev) => !prev)}
+            className={cn(
+              "shrink-0 rounded-xl border px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+              showCustom
+                ? "border-border bg-foreground text-background"
+                : "border-border bg-muted/30 text-foreground hover:bg-background/70",
+            )}
+          >
+            Custom
+          </button>
+        </div>
+
+        {showCustom && (
+          <div className="grid grid-cols-2 gap-3">
+            <FormField
+              control={control}
+              name={`swingDaysOn${suffix}` as keyof FifoFormValues}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Days On</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      min={1}
+                      placeholder="8"
+                      value={
+                        typeof field.value === "number" && field.value !== 0
+                          ? field.value
+                          : ""
+                      }
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                      onBlur={field.onBlur}
+                      name={field.name}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={control}
+              name={`swingDaysOff${suffix}` as keyof FifoFormValues}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Days Off</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      min={1}
+                      placeholder="6"
+                      value={
+                        typeof field.value === "number" && field.value !== 0
+                          ? field.value
+                          : ""
+                      }
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                      onBlur={field.onBlur}
+                      name={field.name}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
         )}
-      />
+
+        <p className="text-sm text-muted-foreground">
+          Choose the FIFO roster pattern for this job.
+        </p>
+      </div>
     </div>
   );
 }
