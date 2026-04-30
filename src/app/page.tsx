@@ -1,4 +1,4 @@
-import { FifoCalculator } from "@/components/ui/forms/FifoCalculator";
+import { FifoCalculator } from "@/components/blocks/forms/FifoCalculator";
 
 export default function Home() {
   return (

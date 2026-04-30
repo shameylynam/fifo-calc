@@ -82,7 +82,7 @@ const MenuItemComponent: React.FC<{ item: MenuItem; depth?: number }> = ({
   );
 };
 
-export default function HamburgerMenu() {
+export default function MobileMenu() {
   const [open, setOpen] = React.useState(false);
 
   return (

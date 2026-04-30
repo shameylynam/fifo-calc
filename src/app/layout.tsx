@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import "./globals.css";
-import { Footer } from "@/components/ui/Footer";
-import { Header } from "@/components/ui/Header";
-import { PageContainer } from "@/components/ui/PageContainer";
+import { Footer } from "@/components/blocks/Footer";
+import { Header } from "@/components/blocks/Header";
+import { PageContainer } from "@/components/blocks/PageContainer";
 
 const siteUrl = (
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://fifocalculator.net"
