@@ -93,6 +93,13 @@ function buildPrompt(
 export async function POST(request: Request) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
+    console.error(
+      "[ai-overview] ANTHROPIC_API_KEY missing. Available env keys:",
+      Object.keys(process.env).filter(
+        (k) =>
+          !k.includes("SECRET") && !k.includes("KEY") && !k.includes("TOKEN"),
+      ),
+    );
     return NextResponse.json(
       { message: "ANTHROPIC_API_KEY is not configured." },
       { status: 500 },
