@@ -127,6 +127,8 @@ export function calculateHourlyResults(
 
   return formatJobResults({
     swing: `${daysOn}/${daysOff}`,
+    daysOn,
+    daysOff,
     grossSwing: swingCyclePay,
     netSwing: netPayPerSwingCycle,
     grossMonth: grossMonthlyPay,
@@ -194,6 +196,8 @@ export function calculateSalaryResults(
 
   return formatJobResults({
     swing: `${daysOn}/${daysOff}`,
+    daysOn,
+    daysOff,
     grossSwing: swingCyclePay,
     netSwing: netPayPerSwingCycle,
     grossMonth: grossMonthlyPay,

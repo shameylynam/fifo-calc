@@ -1,6 +1,8 @@
 // Type for job calculation results
 export type JobResults = {
   swing: string;
+  daysOn: number;
+  daysOff: number;
   grossSwing: number;
   netSwing: number;
   grossMonth: number;
