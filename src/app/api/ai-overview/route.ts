@@ -120,48 +120,20 @@ export async function POST(request: Request) {
 
   const client = new Anthropic({ apiKey });
 
-  let stream: Awaited<ReturnType<typeof client.messages.stream>>;
-  try {
-    stream = await client.messages.stream({
-      model: "claude-opus-4-5",
-      max_tokens: 1024,
-      messages: [{ role: "user", content: prompt }],
-    });
-  } catch (err) {
-    console.error("[ai-overview] Anthropic stream error:", err);
-    return NextResponse.json(
-      { message: "Failed to connect to AI service." },
-      { status: 502 },
-    );
-  }
-
-  const encoder = new TextEncoder();
-  const readable = new ReadableStream({
-    async start(controller) {
-      try {
-        for await (const chunk of stream) {
-          if (
-            chunk.type === "content_block_delta" &&
-            chunk.delta.type === "text_delta"
-          ) {
-            controller.enqueue(encoder.encode(chunk.delta.text));
-          }
-        }
-        controller.close();
-      } catch (err) {
-        console.error("[ai-overview] Anthropic stream read error:", err);
-        controller.error(err);
-      }
-    },
-    cancel() {
-      stream.abort();
-    },
+  const message = await client.messages.create({
+    model: "claude-opus-4-5",
+    max_tokens: 1024,
+    messages: [{ role: "user", content: prompt }],
   });
 
-  return new Response(readable, {
+  const text = message.content
+    .filter((block) => block.type === "text")
+    .map((block) => block.text)
+    .join("");
+
+  return new Response(text, {
     headers: {
       "Content-Type": "text/plain; charset=utf-8",
-      "Transfer-Encoding": "chunked",
       "X-Content-Type-Options": "nosniff",
     },
   });
