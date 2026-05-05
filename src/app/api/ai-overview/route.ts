@@ -147,10 +147,10 @@ export async function POST(request: Request) {
             controller.enqueue(encoder.encode(chunk.delta.text));
           }
         }
+        controller.close();
       } catch (err) {
         console.error("[ai-overview] Anthropic stream read error:", err);
-      } finally {
-        controller.close();
+        controller.error(err);
       }
     },
     cancel() {
