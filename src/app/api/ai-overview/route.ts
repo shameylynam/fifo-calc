@@ -93,6 +93,13 @@ function buildPrompt(
 export async function POST(request: Request) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
+    console.error(
+      "[ai-overview] ANTHROPIC_API_KEY missing. Available env keys:",
+      Object.keys(process.env).filter(
+        (k) =>
+          !k.includes("SECRET") && !k.includes("KEY") && !k.includes("TOKEN"),
+      ),
+    );
     return NextResponse.json(
       { message: "ANTHROPIC_API_KEY is not configured." },
       { status: 500 },
@@ -113,7 +120,7 @@ export async function POST(request: Request) {
 
   const client = new Anthropic({ apiKey });
 
-  let stream;
+  let stream: Awaited<ReturnType<typeof client.messages.stream>>;
   try {
     stream = await client.messages.stream({
       model: "claude-opus-4-5",
@@ -121,7 +128,7 @@ export async function POST(request: Request) {
       messages: [{ role: "user", content: prompt }],
     });
   } catch (err) {
-    console.error("Anthropic stream error:", err);
+    console.error("[ai-overview] Anthropic stream error:", err);
     return NextResponse.json(
       { message: "Failed to connect to AI service." },
       { status: 502 },
@@ -142,6 +149,7 @@ export async function POST(request: Request) {
         }
         controller.close();
       } catch (err) {
+        console.error("[ai-overview] Anthropic stream read error:", err);
         controller.error(err);
       }
     },
