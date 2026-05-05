@@ -14,8 +14,7 @@ frontend:
     build:
       commands:
         - export BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%S.000Z")
-        - env | grep -e ANTHROPIC_API_KEY >> .env.production
-        - env | grep -e NEXT_PUBLIC_ >> .env.production
+        - echo "ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY" >> .env.production
         - npm run build
   artifacts:
     baseDirectory: .next

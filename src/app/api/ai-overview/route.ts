@@ -120,24 +120,38 @@ export async function POST(request: Request) {
 
   const client = new Anthropic({ apiKey });
 
-  const stream = await client.messages.stream({
-    model: "claude-opus-4-5",
-    max_tokens: 1024,
-    messages: [{ role: "user", content: prompt }],
-  });
+  let stream: Awaited<ReturnType<typeof client.messages.stream>>;
+  try {
+    stream = await client.messages.stream({
+      model: "claude-opus-4-5",
+      max_tokens: 1024,
+      messages: [{ role: "user", content: prompt }],
+    });
+  } catch (err) {
+    console.error("[ai-overview] Anthropic stream error:", err);
+    return NextResponse.json(
+      { message: "Failed to connect to AI service." },
+      { status: 502 },
+    );
+  }
 
   const encoder = new TextEncoder();
   const readable = new ReadableStream({
     async start(controller) {
-      for await (const chunk of stream) {
-        if (
-          chunk.type === "content_block_delta" &&
-          chunk.delta.type === "text_delta"
-        ) {
-          controller.enqueue(encoder.encode(chunk.delta.text));
+      try {
+        for await (const chunk of stream) {
+          if (
+            chunk.type === "content_block_delta" &&
+            chunk.delta.type === "text_delta"
+          ) {
+            controller.enqueue(encoder.encode(chunk.delta.text));
+          }
         }
+      } catch (err) {
+        console.error("[ai-overview] Anthropic stream read error:", err);
+      } finally {
+        controller.close();
       }
-      controller.close();
     },
     cancel() {
       stream.abort();
