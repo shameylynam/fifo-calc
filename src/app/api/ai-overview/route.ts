@@ -1,4 +1,9 @@
-import Anthropic from "@anthropic-ai/sdk";
+import Anthropic, {
+  APIConnectionError,
+  APIError,
+  AuthenticationError,
+  RateLimitError,
+} from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -91,15 +96,8 @@ function buildPrompt(
 }
 
 export async function POST(request: Request) {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    console.error(
-      "[ai-overview] ANTHROPIC_API_KEY missing. Available env keys:",
-      Object.keys(process.env).filter(
-        (k) =>
-          !k.includes("SECRET") && !k.includes("KEY") && !k.includes("TOKEN"),
-      ),
-    );
+  if (!process.env.ANTHROPIC_API_KEY) {
+    console.error("[ai-overview] ANTHROPIC_API_KEY is not set.");
     return NextResponse.json(
       { message: "ANTHROPIC_API_KEY is not configured." },
       { status: 500 },
@@ -119,10 +117,11 @@ export async function POST(request: Request) {
   const prompt = buildPrompt(job1, job2);
 
   try {
-    const client = new Anthropic({ apiKey });
+    // apiKey defaults to process.env.ANTHROPIC_API_KEY
+    const client = new Anthropic();
 
     const message = await client.messages.create({
-      model: "claude-opus-4-5",
+      model: "claude-opus-4-6",
       max_tokens: 1024,
       messages: [{ role: "user", content: prompt }],
     });
@@ -139,10 +138,38 @@ export async function POST(request: Request) {
       },
     });
   } catch (err) {
-    console.error("[ai-overview] Anthropic API error:", err);
+    if (err instanceof AuthenticationError) {
+      console.error("[ai-overview] Authentication failed:", err.message);
+      return NextResponse.json(
+        { message: "AI service authentication failed." },
+        { status: 500 },
+      );
+    }
+    if (err instanceof RateLimitError) {
+      console.error("[ai-overview] Rate limit exceeded:", err.message);
+      return NextResponse.json(
+        { message: "AI service rate limit exceeded. Please try again later." },
+        { status: 429 },
+      );
+    }
+    if (err instanceof APIConnectionError) {
+      console.error("[ai-overview] Connection error:", err.message);
+      return NextResponse.json(
+        { message: "Could not connect to AI service. Please try again." },
+        { status: 502 },
+      );
+    }
+    if (err instanceof APIError) {
+      console.error("[ai-overview] API error:", err.status, err.message);
+      return NextResponse.json(
+        { message: "AI service returned an error. Please try again." },
+        { status: 502 },
+      );
+    }
+    console.error("[ai-overview] Unexpected error:", err);
     return NextResponse.json(
       { message: "Failed to generate AI overview. Please try again." },
-      { status: 502 },
+      { status: 500 },
     );
   }
 }
