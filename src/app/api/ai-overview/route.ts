@@ -121,9 +121,11 @@ export async function POST(request: Request) {
       messages: [{ role: "user", content: prompt }],
     });
   } catch (err) {
-    const message =
-      err instanceof Error ? err.message : "Failed to connect to AI service.";
-    return NextResponse.json({ message }, { status: 502 });
+    console.error("Anthropic stream error:", err);
+    return NextResponse.json(
+      { message: "Failed to connect to AI service." },
+      { status: 502 },
+    );
   }
 
   const encoder = new TextEncoder();
