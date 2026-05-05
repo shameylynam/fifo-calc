@@ -118,23 +118,31 @@ export async function POST(request: Request) {
   const { job1, job2 } = parsed.data;
   const prompt = buildPrompt(job1, job2);
 
-  const client = new Anthropic({ apiKey });
+  try {
+    const client = new Anthropic({ apiKey });
 
-  const message = await client.messages.create({
-    model: "claude-opus-4-5",
-    max_tokens: 1024,
-    messages: [{ role: "user", content: prompt }],
-  });
+    const message = await client.messages.create({
+      model: "claude-opus-4-5",
+      max_tokens: 1024,
+      messages: [{ role: "user", content: prompt }],
+    });
 
-  const text = message.content
-    .filter((block) => block.type === "text")
-    .map((block) => block.text)
-    .join("");
+    const text = message.content
+      .filter((block) => block.type === "text")
+      .map((block) => block.text)
+      .join("");
 
-  return new Response(text, {
-    headers: {
-      "Content-Type": "text/plain; charset=utf-8",
-      "X-Content-Type-Options": "nosniff",
-    },
-  });
+    return new Response(text, {
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "X-Content-Type-Options": "nosniff",
+      },
+    });
+  } catch (err) {
+    console.error("[ai-overview] Anthropic API error:", err);
+    return NextResponse.json(
+      { message: "Failed to generate AI overview. Please try again." },
+      { status: 502 },
+    );
+  }
 }
