@@ -14,7 +14,9 @@ const hourlyRate = 40;
 const hoursPerDay = 12;
 const superHoursPerDay = 8;
 const superRate = 12;
-const swingName = "8/6";
+const daysOn = 8;
+const daysOff = 6;
+const swingName = `${daysOn}/${daysOff}`;
 
 const currencyFormatter = new Intl.NumberFormat("en-AU", {
   style: "currency",
@@ -38,7 +40,8 @@ function formatNumber(value: number) {
 
 const exampleResults = calculateHourlyResults(
   hourlyRate,
-  swingName,
+  daysOn,
+  daysOff,
   false,
   true,
   superRate,
@@ -233,9 +236,9 @@ export default function HowItWorks() {
             super turned on
           </h2>
           <p className="max-w-3xl text-base leading-7 text-muted-foreground">
-            This walkthrough follows the same order as the app&apos;s calculation:
-            hourly pay to swing pay, swing pay to annual pay, tax and Medicare,
-            then separate superannuation.
+            This walkthrough follows the same order as the app&apos;s
+            calculation: hourly pay to swing pay, swing pay to annual pay, tax
+            and Medicare, then separate superannuation.
           </p>
         </div>
 
