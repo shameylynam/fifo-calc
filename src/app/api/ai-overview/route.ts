@@ -96,7 +96,8 @@ function buildPrompt(
 }
 
 export async function POST(request: Request) {
-  if (!process.env.ANTHROPIC_API_KEY) {
+  const apiKey = process.env.ANTHROPIC_API_KEY?.trim();
+  if (!apiKey) {
     console.error("[ai-overview] ANTHROPIC_API_KEY is not set.");
     return NextResponse.json(
       { message: "ANTHROPIC_API_KEY is not configured." },
@@ -117,8 +118,7 @@ export async function POST(request: Request) {
   const prompt = buildPrompt(job1, job2);
 
   try {
-    // apiKey defaults to process.env.ANTHROPIC_API_KEY
-    const client = new Anthropic();
+    const client = new Anthropic({ apiKey });
 
     const message = await client.messages.create({
       model: "claude-opus-4-6",
