@@ -58,7 +58,12 @@ const FifoCalculator = React.forwardRef<
       const res = await fetch("/api/ai-overview", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ job1, job2: job2 ?? undefined, payType1: pt1, payType2: pt2 }),
+        body: JSON.stringify({
+          job1,
+          job2: job2 ?? undefined,
+          payType1: pt1,
+          payType2: pt2,
+        }),
       });
       if (!res.ok || !res.body) {
         const data = await res.json().catch(() => ({}));

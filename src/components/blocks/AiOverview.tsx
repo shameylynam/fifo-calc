@@ -23,9 +23,7 @@ export function AiOverview({ text, isLoading, error }: AiOverviewProps) {
         )}
       </div>
 
-      {error && (
-        <p className="text-sm text-destructive">{error}</p>
-      )}
+      {error && <p className="text-sm text-destructive">{error}</p>}
 
       {text && (
         <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
