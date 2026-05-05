@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { FifoJobInput } from "@/components/blocks/FifoJobInput";
 import { FifoComparisonTable } from "@/components/blocks/FifoComparisonTable";
 import { FifoResultsTable } from "@/components/blocks/FifoResultsTable";
+import { AiOverview } from "@/components/blocks/AiOverview";
 import type { JobResults, PayType } from "@/types/fifo.types";
 import {
   fifoFormSchema,
@@ -39,6 +40,49 @@ const FifoCalculator = React.forwardRef<
     job1: JobResults | null;
     job2: JobResults | null;
   }>(null);
+
+  const [aiText, setAiText] = React.useState("");
+  const [aiLoading, setAiLoading] = React.useState(false);
+  const [aiError, setAiError] = React.useState<string | null>(null);
+
+  async function fetchAiOverview(
+    job1: JobResults,
+    job2: JobResults | null,
+    pt1: PayType,
+    pt2: PayType,
+  ) {
+    setAiText("");
+    setAiError(null);
+    setAiLoading(true);
+    try {
+      const res = await fetch("/api/ai-overview", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          job1,
+          job2: job2 ?? undefined,
+          payType1: pt1,
+          payType2: pt2,
+        }),
+      });
+      if (!res.ok || !res.body) {
+        const data = await res.json().catch(() => ({}));
+        setAiError(data.message ?? "Failed to fetch AI overview.");
+        return;
+      }
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        setAiText((prev) => prev + decoder.decode(value, { stream: true }));
+      }
+    } catch {
+      setAiError("Something went wrong generating the AI overview.");
+    } finally {
+      setAiLoading(false);
+    }
+  }
 
   function handleCompareToggle() {
     setShowCompare((currentValue) => {
@@ -101,6 +145,9 @@ const FifoCalculator = React.forwardRef<
       }
     }
     setResults({ job1: job1Results, job2: job2Results });
+    if (job1Results) {
+      void fetchAiOverview(job1Results, job2Results, payTypeJob1, payTypeJob2);
+    }
   }
 
   return (
@@ -179,6 +226,8 @@ const FifoCalculator = React.forwardRef<
             {showCompare ? "Hide Comparison" : "Compare Jobs"}
           </Button>
         </div>
+
+        <AiOverview text={aiText} isLoading={aiLoading} error={aiError} />
 
         {results && (
           <div

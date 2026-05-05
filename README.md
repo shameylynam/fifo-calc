@@ -70,3 +70,52 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 npm run build   # production build
 npm run lint    # ESLint
 ```
+
+---
+
+## Backend boilerplate (Amplify + Next.js)
+
+This project now includes a starter backend layer for Next.js App Router routes:
+
+- `GET /api/health` - service health check
+- `GET /api/todos` - list `Todo` records from Amplify Data
+- `POST /api/todos` - create a `Todo` record in Amplify Data
+
+Amplify server client helper:
+
+- `src/lib/server/amplify-server.ts`
+
+### 1. Install dependencies
+
+```bash
+npm install
+```
+
+### 2. Generate backend outputs locally
+
+Run Amplify sandbox from project root:
+
+```bash
+npx ampx sandbox
+```
+
+This generates `amplify_outputs.json` with your backend environment values.
+
+### 3. Run Next.js
+
+```bash
+npm run dev
+```
+
+### 4. Test backend routes
+
+```bash
+curl http://localhost:3000/api/health
+curl http://localhost:3000/api/todos
+curl -X POST http://localhost:3000/api/todos -H "content-type: application/json" -d '{"content":"First todo"}'
+```
+
+### Notes for AWS Amplify hosting
+
+- In Amplify Hosting builds, ensure backend deployment is connected so `amplify_outputs.json` is available during build/runtime.
+- The current data model allows guest access and uses identity pool auth mode (`amplify/data/resource.ts`).
