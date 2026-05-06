@@ -61,6 +61,13 @@ export default function TermsOfUse() {
         create derivative works without prior written permission, except as
         permitted by applicable law.
       </p>
+      <p>
+        Mining truck by Mourad Mokrane from{" "}
+        <a href="https://thenounproject.com/browse/icons/term/mining-truck/">
+          Noun Project
+        </a>{" "}
+        (CC BY 3.0)
+      </p>
 
       <h2>Limitation of liability</h2>
       <p>
