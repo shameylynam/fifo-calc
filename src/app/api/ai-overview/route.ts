@@ -120,21 +120,35 @@ export async function POST(request: Request) {
   try {
     const client = new Anthropic({ apiKey });
 
-    const message = await client.messages.create({
+    const stream = await client.messages.stream({
       model: "claude-opus-4-6",
       max_tokens: 1024,
       messages: [{ role: "user", content: prompt }],
     });
 
-    const text = message.content
-      .filter((block) => block.type === "text")
-      .map((block) => block.text)
-      .join("");
+    const readable = new ReadableStream({
+      async start(controller) {
+        const encoder = new TextEncoder();
+        try {
+          for await (const chunk of stream) {
+            if (
+              chunk.type === "content_block_delta" &&
+              chunk.delta.type === "text_delta"
+            ) {
+              controller.enqueue(encoder.encode(chunk.delta.text));
+            }
+          }
+        } finally {
+          controller.close();
+        }
+      },
+    });
 
-    return new Response(text, {
+    return new Response(readable, {
       headers: {
         "Content-Type": "text/plain; charset=utf-8",
         "X-Content-Type-Options": "nosniff",
+        "Cache-Control": "no-cache",
       },
     });
   } catch (err) {
