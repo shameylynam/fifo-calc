@@ -65,18 +65,13 @@ const FifoCalculator = React.forwardRef<
           payType2: pt2,
         }),
       });
-      if (!res.ok || !res.body) {
+      if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         setAiError(data.message ?? "Failed to fetch AI overview.");
         return;
       }
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        setAiText((prev) => prev + decoder.decode(value, { stream: true }));
-      }
+      const text = await res.text();
+      setAiText(text);
     } catch {
       setAiError("Something went wrong generating the AI overview.");
     } finally {

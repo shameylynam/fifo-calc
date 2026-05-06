@@ -1,4 +1,9 @@
-import Anthropic from "@anthropic-ai/sdk";
+import Anthropic, {
+  APIConnectionError,
+  APIError,
+  AuthenticationError,
+  RateLimitError,
+} from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -91,8 +96,9 @@ function buildPrompt(
 }
 
 export async function POST(request: Request) {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.ANTHROPIC_API_KEY?.trim();
   if (!apiKey) {
+    console.error("[ai-overview] ANTHROPIC_API_KEY is not set.");
     return NextResponse.json(
       { message: "ANTHROPIC_API_KEY is not configured." },
       { status: 500 },
@@ -111,37 +117,59 @@ export async function POST(request: Request) {
   const { job1, job2 } = parsed.data;
   const prompt = buildPrompt(job1, job2);
 
-  const client = new Anthropic({ apiKey });
+  try {
+    const client = new Anthropic({ apiKey });
 
-  const stream = await client.messages.stream({
-    model: "claude-opus-4-5",
-    max_tokens: 1024,
-    messages: [{ role: "user", content: prompt }],
-  });
+    const message = await client.messages.create({
+      model: "claude-opus-4-6",
+      max_tokens: 1024,
+      messages: [{ role: "user", content: prompt }],
+    });
 
-  const encoder = new TextEncoder();
-  const readable = new ReadableStream({
-    async start(controller) {
-      for await (const chunk of stream) {
-        if (
-          chunk.type === "content_block_delta" &&
-          chunk.delta.type === "text_delta"
-        ) {
-          controller.enqueue(encoder.encode(chunk.delta.text));
-        }
-      }
-      controller.close();
-    },
-    cancel() {
-      stream.abort();
-    },
-  });
+    const text = message.content
+      .filter((block) => block.type === "text")
+      .map((block) => block.text)
+      .join("");
 
-  return new Response(readable, {
-    headers: {
-      "Content-Type": "text/plain; charset=utf-8",
-      "Transfer-Encoding": "chunked",
-      "X-Content-Type-Options": "nosniff",
-    },
-  });
+    return new Response(text, {
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "X-Content-Type-Options": "nosniff",
+      },
+    });
+  } catch (err) {
+    if (err instanceof AuthenticationError) {
+      console.error("[ai-overview] Authentication failed:", err.message);
+      return NextResponse.json(
+        { message: "AI service authentication failed." },
+        { status: 500 },
+      );
+    }
+    if (err instanceof RateLimitError) {
+      console.error("[ai-overview] Rate limit exceeded:", err.message);
+      return NextResponse.json(
+        { message: "AI service rate limit exceeded. Please try again later." },
+        { status: 429 },
+      );
+    }
+    if (err instanceof APIConnectionError) {
+      console.error("[ai-overview] Connection error:", err.message);
+      return NextResponse.json(
+        { message: "Could not connect to AI service. Please try again." },
+        { status: 502 },
+      );
+    }
+    if (err instanceof APIError) {
+      console.error("[ai-overview] API error:", err.status, err.message);
+      return NextResponse.json(
+        { message: "AI service returned an error. Please try again." },
+        { status: 502 },
+      );
+    }
+    console.error("[ai-overview] Unexpected error:", err);
+    return NextResponse.json(
+      { message: "Failed to generate AI overview. Please try again." },
+      { status: 500 },
+    );
+  }
 }
