@@ -70,8 +70,17 @@ const FifoCalculator = React.forwardRef<
         setAiError(data.message ?? "Failed to fetch AI overview.");
         return;
       }
-      const text = await res.text();
-      setAiText(text);
+      const reader = res.body?.getReader();
+      if (!reader) {
+        setAiError("Failed to read AI overview response.");
+        return;
+      }
+      const decoder = new TextDecoder();
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        setAiText((prev) => prev + decoder.decode(value, { stream: true }));
+      }
     } catch {
       setAiError("Something went wrong generating the AI overview.");
     } finally {

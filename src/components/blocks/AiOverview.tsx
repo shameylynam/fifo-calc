@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { Loader2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 type AiOverviewProps = {
@@ -17,9 +18,7 @@ export function AiOverview({ text, isLoading, error }: AiOverviewProps) {
       <div className="flex items-center gap-2">
         <h2 className="text-base font-semibold">AI Overview</h2>
         {isLoading && (
-          <span className="text-xs text-muted-foreground animate-pulse">
-            Generating…
-          </span>
+          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
         )}
       </div>
 
