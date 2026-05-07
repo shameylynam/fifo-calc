@@ -14,6 +14,7 @@ FIFO workers are paid on rotating rosters rather than standard weekly hours, whi
 - Income tax and Medicare levy breakdown
 - Employer superannuation (configurable rate and hours per day)
 - HECS-HELP repayment estimates
+- **AI Overview** — an AI-generated plain-English summary of your results, powered by [Anthropic Claude](https://www.anthropic.com). When comparing two jobs, the AI highlights key financial differences and states which offer comes out ahead.
 
 Supported rosters: **8/6**, **2/1**, **2/2** or a custom roster.
 
@@ -28,7 +29,7 @@ Supported rosters: **8/6**, **2/1**, **2/2** or a custom roster.
 5. **HECS-HELP repayments** — If selected, the compulsory annual repayment rate for the income band is deducted from net pay.
 6. **Superannuation** — Calculated separately as employer super on top of take-home pay. For hourly roles, super is applied to a configurable number of hours per day (default 8) at the chosen super rate percentage.
 
-All calculations run entirely in the browser — no data is sent to a server.
+Tax and pay calculations run entirely in the browser. After you submit the form, the calculated results (pay figures, tax, super, and roster data — **not** your raw inputs) are sent to an Anthropic API endpoint to generate the AI Overview. No data is stored by the application.
 
 ---
 
@@ -51,7 +52,6 @@ All calculations run entirely in the browser — no data is sent to a server.
 
 Features planned for future releases:
 
-- [ ] **AI job comparison** — AI-powered overview to help compare two or more job offers side-by-side across pay, tax, and super.
 - [ ] **Overtime compensation** — Support for overtime rates (e.g. time-and-a-half, double time) applied to hours worked beyond a standard shift.
 - [ ] **Public holiday rates** — Apply configurable public holiday pay multipliers to relevant days within a swing.
 
