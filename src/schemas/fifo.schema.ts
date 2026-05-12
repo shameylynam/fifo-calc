@@ -1,8 +1,8 @@
 import { z } from "zod";
 
 export const fifoFormSchema = z.object({
-  hourlypay: z.number().min(0),
-  salary: z.number().min(0),
+  hourlypay: z.number().positive({ message: "Hourly pay is required." }),
+  salary: z.number().positive({ message: "Yearly salary is required." }),
   swingDaysOn: z
     .number()
     .int()
@@ -15,8 +15,8 @@ export const fifoFormSchema = z.object({
   superannuation: z.boolean().optional(),
   superRate: z.number().min(0).max(100).optional(),
   superHoursPerDay: z.number().min(1).max(12).optional(),
-  hourlypayTwo: z.number().min(0),
-  salaryTwo: z.number().min(0),
+  hourlypayTwo: z.number().positive({ message: "Hourly pay is required." }),
+  salaryTwo: z.number().positive({ message: "Yearly salary is required." }),
   swingDaysOnTwo: z
     .number()
     .int()
