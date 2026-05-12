@@ -15,8 +15,8 @@ export const fifoFormSchema = z.object({
   superannuation: z.boolean().optional(),
   superRate: z.number().min(0).max(100).optional(),
   superHoursPerDay: z.number().min(1).max(12).optional(),
-  hourlypayTwo: z.number().positive({ message: "Hourly pay is required." }),
-  salaryTwo: z.number().positive({ message: "Yearly salary is required." }),
+  hourlypayTwo: z.number().positive({ message: "Second job hourly pay is required." }),
+  salaryTwo: z.number().positive({ message: "Second job yearly salary is required." }),
   swingDaysOnTwo: z
     .number()
     .int()
